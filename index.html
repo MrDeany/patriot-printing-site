@@ -1,0 +1,483 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Patriot Printing · Custom DTF, Apparel, Stickers & Signs · Scott AFB, IL</title>
+<meta name="description" content="Patriot Printing — Scott AFB, Illinois. Custom DTF gang sheets, vinyl stickers, apparel, banners, decals, and yard signs. Fast turnaround, fair pricing, real American craft.">
+<link rel="stylesheet" href="./css/global.css">
+<style>
+  /* ---- HOMEPAGE-ONLY ---- */
+  .hero{
+    position:relative;
+    background: var(--navy);
+    color: var(--cream);
+    overflow:hidden;
+    padding: 6rem 0 7rem;
+  }
+  .hero::before{
+    content:"";position:absolute;inset:0;
+    background-image:
+      linear-gradient(135deg, rgba(168,50,74,.12) 0%, transparent 40%),
+      repeating-linear-gradient(90deg, transparent, transparent 80px, rgba(245,241,232,.04) 80px, rgba(245,241,232,.04) 81px);
+    pointer-events:none;
+  }
+  .hero::after{
+    content:"";position:absolute;right:-100px;top:-100px;width:500px;height:500px;
+    background: radial-gradient(circle, rgba(168,50,74,.18), transparent 60%);
+    pointer-events:none;
+  }
+  .hero-grid{
+    position:relative;
+    display:grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 3rem;
+    align-items:center;
+  }
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr}}
+  .hero h1{
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(2.6rem, 6.5vw, 5.5rem);
+    line-height: .98;
+    letter-spacing: -0.025em;
+    margin: 1rem 0;
+  }
+  .hero h1 em{
+    font-style: italic;
+    font-weight: 400;
+    color: var(--brick);
+    font-variation-settings: "opsz" 144, "wght" 400;
+  }
+  .hero-lede{
+    font-size: 1.05rem;
+    max-width: 52ch;
+    line-height: 1.6;
+    opacity: .85;
+    margin-bottom: 2rem;
+  }
+  .hero-cta{display:flex; gap:1rem; flex-wrap:wrap}
+
+  .hero-card{
+    background: var(--cream);
+    color: var(--charcoal);
+    padding: 2rem;
+    border: 4px solid var(--brick);
+    box-shadow: -16px 16px 0 var(--navy-deep);
+    position: relative;
+  }
+  .hero-card .label{
+    font-family: var(--font-mono);
+    font-size:.7rem;letter-spacing:.22em;text-transform:uppercase;
+    color: var(--brick);
+  }
+  .hero-card h3{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.6rem;
+    margin: .25rem 0 1rem;
+    line-height: 1.1;
+  }
+  .hero-stats{
+    display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top: 1.25rem;
+  }
+  .hero-stat{
+    border-top: 1px solid var(--rule);
+    padding-top: .65rem;
+  }
+  .hero-stat .num{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--navy);
+  }
+  .hero-stat .lbl{
+    font-family: var(--font-mono);
+    font-size:.65rem;letter-spacing:.18em;text-transform:uppercase;
+    color: var(--slate);
+    margin-top: .3rem;
+  }
+
+  /* MARQUEE */
+  .marquee{
+    background: var(--brick);
+    color: var(--cream);
+    padding: .9rem 0;
+    overflow: hidden;
+    border-top: 1px solid rgba(245,241,232,.2);
+    border-bottom: 1px solid rgba(245,241,232,.2);
+  }
+  .marquee-track{
+    display:flex; gap: 3rem;
+    animation: scroll 30s linear infinite;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: .82rem;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+  }
+  .marquee-track span{display:inline-flex; align-items:center; gap:.6rem}
+  .marquee-track svg{width:14px;height:14px;fill:currentColor;flex-shrink:0}
+  @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+  /* PRODUCT TILES */
+  .products-head{display:flex;align-items:end;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-bottom:2.5rem}
+  .products-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .product-tile{
+    background:#fff;
+    border:1px solid var(--rule);
+    padding: 0;
+    transition: transform .25s, box-shadow .25s, border-color .25s;
+    display:flex;flex-direction:column;
+    text-decoration:none;
+    color: inherit;
+    overflow:hidden;
+  }
+  .product-tile:hover{transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--navy)}
+  .product-tile .preview{
+    height:180px;background:var(--cream-soft);position:relative;overflow:hidden;
+    display:grid;place-items:center;
+  }
+  .product-tile .preview svg{width:80%;height:80%}
+  .product-tile .body{padding: 1.25rem 1.4rem 1.5rem;flex:1;display:flex;flex-direction:column}
+  .product-tile .num{
+    font-family: var(--font-mono);font-size:.7rem;letter-spacing:.2em;color:var(--brick);
+  }
+  .product-tile h3{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin: .35rem 0 .5rem;
+    color: var(--navy);
+    letter-spacing: -.01em;
+  }
+  .product-tile p{font-size:.9rem;color:var(--slate); flex:1}
+  .product-tile .cta{
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--brick);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+
+  /* WHY US */
+  .why-bg{background: #fff; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule)}
+  .why-grid{
+    display:grid;grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));gap:2rem;
+  }
+  .why-item h4{
+    font-family: var(--font-display);
+    font-size: 1.3rem;
+    color: var(--navy);
+    margin: .75rem 0 .4rem;
+  }
+  .why-item p{font-size:.92rem; color:var(--slate); line-height:1.6}
+  .why-num{
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--brick);
+    font-size: 2.5rem;
+    line-height: 1;
+    border-bottom: 2px solid var(--navy);
+    display: inline-block;
+    padding-bottom:.25rem;
+  }
+
+  /* CTA strip */
+  .cta-strip{
+    background: var(--navy-deep);
+    color: var(--cream);
+    padding: 4rem 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-strip::before{
+    content:"";position:absolute;inset:0;
+    background: radial-gradient(circle at 20% 50%, rgba(168,50,74,.18), transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(168,50,74,.12), transparent 50%);
+  }
+  .cta-strip .wrap{position:relative}
+  .cta-strip h2{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin-bottom: 1rem;
+  }
+  .cta-strip h2 em{color: var(--brick); font-style: italic}
+  .cta-strip p{opacity:.8;max-width: 55ch;margin: 0 auto 2rem}
+</style>
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow" style="color: var(--brick)">★ Scott AFB, Illinois</div>
+        <h1 class="display">Real prints.<br>Made by <em>real people.</em></h1>
+        <p class="hero-lede">
+          Patriot Printing is a working print shop. We make DTF transfers, vinyl stickers,
+          apparel, banners, decals, and yard signs — for small businesses, units, teams,
+          and anyone who needs something done right the first time.
+        </p>
+        <div class="hero-cta">
+          <a href="./pages/gang-sheet.html" class="btn btn-primary">Build a Gang Sheet</a>
+          <a href="#products" class="btn btn-ghost" style="color:var(--cream); border-color:var(--cream)">See All Services</a>
+        </div>
+      </div>
+
+      <div class="hero-card">
+        <div class="label">★ Right now</div>
+        <h3>22" DTF gang sheets — bulk pricing live in our builder.</h3>
+        <p style="font-size:.92rem; color:var(--slate); line-height: 1.6">
+          Drop your art on the canvas, scale to exact inches, multiply, and the price updates
+          as the sheet grows. Zero guessing.
+        </p>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="num">23"</div>
+            <div class="lbl">Sheet Width</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">24'</div>
+            <div class="lbl">Max Length</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">48hr</div>
+            <div class="lbl">Standard Turn</div>
+          </div>
+          <div class="hero-stat">
+            <div class="num">★★★★★</div>
+            <div class="lbl">Local Reviews</div>
+          </div>
+        </div>
+        <a href="./pages/gang-sheet.html" class="btn btn-dark btn-block" style="margin-top:1.25rem">Open the Builder →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> DTF Transfers</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Vinyl Stickers</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Custom Apparel</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> 13oz Banners</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Vinyl Decals</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Yard Signs</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Company Stores</span>
+      <!-- duplicate for seamless loop -->
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> DTF Transfers</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Vinyl Stickers</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Custom Apparel</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> 13oz Banners</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Vinyl Decals</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Yard Signs</span>
+      <span><svg viewBox="0 0 24 24"><polygon points="12,2 15,9 22,9 17,14 19,21 12,17 5,21 7,14 2,9 9,9"/></svg> Company Stores</span>
+    </div>
+  </div>
+
+  <!-- PRODUCTS -->
+  <section class="section" id="products">
+    <div class="wrap">
+      <div class="products-head">
+        <div>
+          <div class="eyebrow">What we make</div>
+          <h2 class="display" style="color:var(--navy)">Seven things, all done well.</h2>
+        </div>
+        <p style="max-width:42ch;color:var(--slate);font-size:.95rem">
+          Each tool below is built to give you exact pricing and a real preview before
+          you commit. No surprises, no guesswork.
+        </p>
+      </div>
+
+      <div class="products-grid">
+        <a href="./pages/gang-sheet.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #1a2841, #2a3a5a)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="10" width="160" height="100" fill="#f5f1e8" stroke="#a8324a" stroke-width="2" stroke-dasharray="4 3"/>
+              <rect x="30" y="20" width="35" height="35" fill="#a8324a"/>
+              <rect x="75" y="22" width="25" height="50" fill="#1a2841"/>
+              <rect x="110" y="20" width="50" height="30" fill="#c89b3c"/>
+              <rect x="115" y="60" width="40" height="40" fill="#a8324a" opacity=".7"/>
+              <rect x="35" y="70" width="60" height="30" fill="#1a2841" opacity=".8"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">01 / DTF</div>
+            <h3>Gang Sheet Builder</h3>
+            <p>23" wide DTF transfer sheets. Drag, drop, scale to the inch, multiply. Bulk pricing updates live as you build.</p>
+            <div class="cta"><span>Open builder</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/stickers.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #f5f1e8, #ebe5d4)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="40" cy="40" r="22" fill="#a8324a" stroke="#fff" stroke-width="3"/>
+              <circle cx="100" cy="40" r="22" fill="#1a2841" stroke="#fff" stroke-width="3"/>
+              <circle cx="160" cy="40" r="22" fill="#a8324a" stroke="#fff" stroke-width="3"/>
+              <circle cx="40" cy="90" r="22" fill="#1a2841" stroke="#fff" stroke-width="3"/>
+              <circle cx="100" cy="90" r="22" fill="#a8324a" stroke="#fff" stroke-width="3"/>
+              <circle cx="160" cy="90" r="22" fill="#1a2841" stroke="#fff" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">02 / Vinyl</div>
+            <h3>Sticker Sheets</h3>
+            <p>One design, repeated. Pick your size and sheet length, see the live count, get bulk pricing on the spot.</p>
+            <div class="cta"><span>Configure</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/apparel.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #2a3a5a, #1a2841)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <path d="M50 25 L75 15 Q100 25 125 15 L150 25 L160 50 L140 55 L140 105 L60 105 L60 55 L40 50 Z" fill="#f5f1e8" stroke="#a8324a" stroke-width="2"/>
+              <text x="100" y="75" text-anchor="middle" font-family="serif" font-weight="800" font-size="20" fill="#a8324a">PATRIOT</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">03 / Apparel</div>
+            <h3>Custom Clothing</h3>
+            <p>T-shirts, hoodies, long sleeves, crewnecks, polos. Live mockup with your art, multi-size & color ordering, bulk discounts.</p>
+            <div class="cta"><span>Design now</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/banners.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #a8324a, #7e2235)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="40" width="160" height="40" fill="#f5f1e8" stroke="#1a2841" stroke-width="2"/>
+              <circle cx="28" cy="48" r="3" fill="#1a2841"/>
+              <circle cx="172" cy="48" r="3" fill="#1a2841"/>
+              <circle cx="28" cy="72" r="3" fill="#1a2841"/>
+              <circle cx="172" cy="72" r="3" fill="#1a2841"/>
+              <text x="100" y="68" text-anchor="middle" font-family="serif" font-weight="800" font-size="18" fill="#1a2841">GRAND OPENING</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">04 / Signage</div>
+            <h3>Custom Banners</h3>
+            <p>13oz vinyl, fully finished, taped, grommeted every 18-24". 61" wide × any length up to 24'.</p>
+            <div class="cta"><span>Build a banner</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/decals.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #c89b3c, #a8842c)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="20" width="160" height="80" fill="#1a2841"/>
+              <text x="100" y="55" text-anchor="middle" font-family="serif" font-weight="900" font-size="22" fill="#f5f1e8">VINYL</text>
+              <text x="100" y="85" text-anchor="middle" font-family="monospace" font-size="10" fill="#a8324a" letter-spacing="2">★ DECAL ★</text>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">05 / Quote</div>
+            <h3>Vinyl Decals</h3>
+            <p>Vinyl, perf film, backlit, roll-up banners. Custom sizes, matte or gloss. Quote-based — we'll get back same day.</p>
+            <div class="cta"><span>Request quote</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/yard-signs.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #ebe5d4, #d6cfb8)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="55" y="20" width="90" height="70" fill="#fff" stroke="#1a2841" stroke-width="2"/>
+              <text x="100" y="50" text-anchor="middle" font-family="serif" font-weight="900" font-size="14" fill="#a8324a">FOR SALE</text>
+              <text x="100" y="70" text-anchor="middle" font-family="monospace" font-size="9" fill="#1a2841">CALL 555-0199</text>
+              <line x1="78" y1="90" x2="78" y2="115" stroke="#4a5568" stroke-width="3"/>
+              <line x1="122" y1="90" x2="122" y2="115" stroke="#4a5568" stroke-width="3"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">06 / Outdoor</div>
+            <h3>Yard Signs</h3>
+            <p>Standard 18×24 corrugated. Front, back, or both. Live preview as you design. Bulk discounts on quantity.</p>
+            <div class="cta"><span>Design sign</span><span>→</span></div>
+          </div>
+        </a>
+
+        <a href="./pages/storefronts.html" class="product-tile">
+          <div class="preview" style="background: linear-gradient(135deg, #1a2841, #111a2d)">
+            <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="20" y="30" width="50" height="60" fill="#f5f1e8" stroke="#a8324a" stroke-width="1"/>
+              <rect x="75" y="30" width="50" height="60" fill="#f5f1e8" stroke="#a8324a" stroke-width="1"/>
+              <rect x="130" y="30" width="50" height="60" fill="#f5f1e8" stroke="#a8324a" stroke-width="1"/>
+              <line x1="25" y1="45" x2="65" y2="45" stroke="#1a2841" stroke-width="2"/>
+              <line x1="25" y1="55" x2="55" y2="55" stroke="#a8324a" stroke-width="1"/>
+              <line x1="80" y1="45" x2="120" y2="45" stroke="#1a2841" stroke-width="2"/>
+              <line x1="80" y1="55" x2="110" y2="55" stroke="#a8324a" stroke-width="1"/>
+              <line x1="135" y1="45" x2="175" y2="45" stroke="#1a2841" stroke-width="2"/>
+              <line x1="135" y1="55" x2="165" y2="55" stroke="#a8324a" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="body">
+            <div class="num">07 / Wholesale</div>
+            <h3>Company Storefronts</h3>
+            <p>Private branded portals for your team. Pre-decorated apparel, sized, ready to order. Each company gets its own page.</p>
+            <div class="cta"><span>See clients</span><span>→</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY US -->
+  <section class="section why-bg">
+    <div class="wrap">
+      <div style="text-align:center;margin-bottom:3rem">
+        <div class="eyebrow">Why people keep coming back</div>
+        <h2 class="display" style="color:var(--navy);margin-top:.5rem">Built around the customer.</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-item">
+          <div class="why-num">01</div>
+          <h4>Real preview, real price</h4>
+          <p>Every tool on this site shows you exactly what you'll get and exactly what it costs — before you ever talk to us.</p>
+        </div>
+        <div class="why-item">
+          <div class="why-num">02</div>
+          <h4>Veteran-friendly shop</h4>
+          <p>Located right outside Scott AFB. We work fast, we communicate clearly, and we honor our quotes.</p>
+        </div>
+        <div class="why-item">
+          <div class="why-num">03</div>
+          <h4>Quality you can hold</h4>
+          <p>13oz banners, premium DTF film, real garment brands you trust. We don't cut corners on materials.</p>
+        </div>
+        <div class="why-item">
+          <div class="why-num">04</div>
+          <h4>Bulk pricing built-in</h4>
+          <p>Whether it's a unit run, a school order, or a company rollout — the more you order, the better the price.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA STRIP -->
+  <section class="cta-strip">
+    <div class="wrap">
+      <h2>Have something <em>specific</em> in mind?</h2>
+      <p>If you don't see it on the menu, ask. We do custom work every day, and most quotes go out within hours.</p>
+      <a href="mailto:patriotprintingllc@gmail.com" class="btn btn-primary">Email the Shop</a>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+  <script src="./js/site.js"></script>
+</body>
+</html>

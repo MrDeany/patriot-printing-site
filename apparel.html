@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Apparel · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  .ap-shell{display:grid; grid-template-columns: 320px 1fr 320px; gap:1.25rem; margin-top:1.5rem; align-items:start}
+  @media (max-width:1200px){.ap-shell{grid-template-columns: 280px 1fr}
+    .ap-right{grid-column:1 / -1}}
+  @media (max-width:800px){.ap-shell{grid-template-columns:1fr}}
+
+  .panel{background:#fff;border:1px solid var(--rule); padding:1.1rem}
+  .panel + .panel{margin-top:1rem}
+  .panel h3{
+    font-family:var(--font-mono); font-size:.7rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--navy); margin-bottom:.75rem; font-weight:600;
+  }
+
+  /* category tiles */
+  .cat-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:.5rem}
+  .cat-tile{
+    border:1.5px solid var(--rule); padding:.7rem .5rem; text-align:center;
+    cursor:pointer; transition:all .15s; border-radius: var(--radius-sm);
+    background:#fff;
+  }
+  .cat-tile:hover{border-color:var(--navy)}
+  .cat-tile.active{border-color:var(--brick); background: var(--cream-soft)}
+  .cat-tile svg{width:46px; height:46px; margin: 0 auto .35rem; fill:var(--navy)}
+  .cat-tile.active svg{fill:var(--brick)}
+  .cat-tile span{font-family:var(--font-mono); font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--navy); display:block}
+
+  /* brand list */
+  .brand-list{display:grid; gap:.4rem}
+  .brand-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:.6rem .8rem; border:1px solid var(--rule); cursor:pointer;
+    background:#fff; transition: all .15s; border-radius:var(--radius-sm);
+  }
+  .brand-row:hover{border-color:var(--navy)}
+  .brand-row.active{border-color:var(--brick); background:var(--cream-soft)}
+  .brand-row .name{font-weight:600;font-size:.9rem;color:var(--navy)}
+  .brand-row .sku{font-family:var(--font-mono);font-size:.68rem;color:var(--slate);letter-spacing:.05em}
+  .brand-row .price{font-family:var(--font-mono);font-size:.8rem;color:var(--brick);font-weight:600}
+
+  /* color swatches */
+  .color-grid{display:flex; flex-wrap:wrap; gap:.4rem}
+  .color-chip{
+    width:32px;height:32px;border-radius:50%;cursor:pointer;
+    border:2px solid #fff; box-shadow:0 0 0 1px var(--rule);
+    transition: transform .15s;
+    position:relative;
+  }
+  .color-chip:hover{transform:scale(1.15)}
+  .color-chip.active{box-shadow: 0 0 0 2px var(--brick), 0 0 0 4px #fff}
+  .color-name{
+    font-family:var(--font-mono); font-size:.74rem; color:var(--slate);
+    margin-top:.5rem; letter-spacing:.05em;
+  }
+
+  /* mockup canvas */
+  .mockup-wrap{
+    background:#fff; border:1px solid var(--rule); padding:1rem; min-height:600px;
+  }
+  .mockup-head{
+    display:flex; justify-content:space-between; align-items:center;
+    padding-bottom:.85rem; margin-bottom:1rem; border-bottom:1px solid var(--rule);
+    flex-wrap:wrap; gap:.5rem;
+  }
+  .mockup-head h2{font-family:var(--font-display); font-weight:700; font-size:1.4rem; color:var(--navy)}
+  .mockup-meta{font-family:var(--font-mono);font-size:.74rem;color:var(--slate);letter-spacing:.05em}
+
+  .mockup-stage{
+    background:
+      repeating-linear-gradient(45deg, #f5f1e8, #f5f1e8 10px, #ebe5d4 10px, #ebe5d4 11px);
+    padding: 2rem; min-height: 460px; display:grid; place-items:center;
+    border:1px dashed var(--rule);
+    position:relative;
+  }
+  .mockup-stage svg{width:100%; max-width: 460px; height:auto; filter: drop-shadow(0 12px 24px rgba(17,26,45,.18))}
+
+  /* design controls */
+  .design-tabs{display:flex; gap:.4rem; margin-bottom:.6rem}
+  .design-tab{
+    flex:1; padding:.5rem; border:1px solid var(--rule); background:#fff;
+    font-family:var(--font-mono); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--navy); cursor:pointer; transition:all .15s; border-radius:var(--radius-sm);
+  }
+  .design-tab:hover{border-color:var(--navy)}
+  .design-tab.active{background:var(--navy); color:var(--cream); border-color:var(--navy)}
+
+  .upload-zone{
+    border: 2px dashed var(--rule); background: var(--cream-soft);
+    padding: 1.25rem .8rem; text-align:center; cursor:pointer;
+    transition: all .2s; border-radius: var(--radius-sm);
+  }
+  .upload-zone:hover{border-color:var(--brick); background:#fff}
+  .upload-zone svg{width:28px;height:28px;margin:0 auto .35rem; fill:var(--navy)}
+  .upload-zone span{font-size:.82rem; color:var(--navy); font-weight:600;display:block}
+
+  /* size/qty grid */
+  .size-qty-grid{
+    display:grid; grid-template-columns: 1fr 80px; gap:.4rem .6rem; align-items:center;
+  }
+  .size-qty-grid .lbl{
+    font-family:var(--font-mono); font-size:.78rem; letter-spacing:.08em;
+    color:var(--navy); text-transform:uppercase;
+  }
+  .size-qty-grid input{
+    width:100%; padding:.45rem .5rem; border:1px solid var(--rule);
+    border-radius: var(--radius-sm); font-family:var(--font-mono);
+    text-align:center; font-size:.9rem;
+  }
+
+  .added-colors{margin-top:.8rem}
+  .added-row{
+    display:flex; align-items:center; gap:.6rem;
+    padding:.5rem; border:1px solid var(--rule); margin-bottom:.4rem;
+    border-radius: var(--radius-sm); background:#fff;
+  }
+  .added-swatch{width:18px;height:18px;border-radius:50%;border:1px solid var(--rule); flex-shrink:0}
+  .added-name{flex:1;font-size:.85rem;font-weight:600;color:var(--navy)}
+  .added-qty{font-family:var(--font-mono); font-size:.78rem; color:var(--slate)}
+  .added-rm{
+    background:none;color:var(--brick);cursor:pointer;font-size:1rem;line-height:1;
+    padding: 0 .25rem;
+  }
+
+  /* price card */
+  .price-card{background:var(--navy);color:var(--cream);padding:1.25rem}
+  .price-card h3{color:var(--cream)}
+  .price-line{display:flex;justify-content:space-between;padding:.4rem 0;font-size:.85rem;
+    border-bottom:1px dashed rgba(255,255,255,.15)}
+  .price-line:last-of-type{border:none}
+  .price-line.total{
+    margin-top:.5rem; padding-top:.75rem; border-top:1px solid rgba(255,255,255,.3); border-bottom:none;
+    font-family: var(--font-display); font-weight:800; font-size:1.6rem;
+  }
+  .price-line.total .lbl{font-size:.7rem;font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+
+  /* design overlay on mockup */
+  .design-overlay{position: absolute; pointer-events:none; transform: translate(-50%, -50%)}
+  .design-overlay img{max-width:100%; max-height:100%; display:block}
+  .design-overlay-text{
+    color: var(--design-color, #fff);
+    font-weight: 800;
+    text-align:center;
+    line-height: 1;
+    font-family: var(--font-display);
+    font-size: var(--design-size, 32px);
+    letter-spacing: -.01em;
+    white-space:pre-wrap;
+  }
+
+  .checkout-form .field{margin-bottom:.7rem}
+  .checkout-form input{font-size:.85rem; padding:.55rem .7rem}
+</style>
+</head>
+<body data-page="apparel">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color: var(--gold)">★ Tool 03 / Apparel</div>
+      <h1>Custom Clothing & Apparel</h1>
+      <p>Pick a garment style, brand, and color. Drop your art or type your text — see it live on the mockup. Add multiple colors, sizes, and quantities in one order, with bulk discounts built in.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="ap-shell">
+
+      <!-- LEFT: GARMENT + BRAND + COLOR -->
+      <div class="ap-left">
+        <div class="panel">
+          <h3>1 · Garment Style</h3>
+          <div class="cat-grid" id="catGrid">
+            <!-- populated -->
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>2 · Brand</h3>
+          <div class="brand-list" id="brandList"></div>
+          <p class="help" style="margin-top:.6rem">Prices shown are blank garment cost per piece. Decoration is added below.</p>
+        </div>
+
+        <div class="panel">
+          <h3>3 · Color</h3>
+          <div class="color-grid" id="colorGrid"></div>
+          <div class="color-name" id="colorName">—</div>
+        </div>
+      </div>
+
+      <!-- CENTER: MOCKUP -->
+      <div>
+        <div class="mockup-wrap">
+          <div class="mockup-head">
+            <div>
+              <h2>Live Mockup</h2>
+              <div class="mockup-meta" id="mockupMeta">Choose your garment →</div>
+            </div>
+          </div>
+
+          <div class="mockup-stage" id="mockupStage">
+            <!-- garment SVG injected here -->
+          </div>
+
+          <!-- design controls under mockup -->
+          <div class="panel" style="margin-top:1rem">
+            <div class="design-tabs">
+              <button class="design-tab active" data-mode="text">Text</button>
+              <button class="design-tab" data-mode="image">Image</button>
+            </div>
+
+            <div id="textControls">
+              <div class="field">
+                <label>Your Text</label>
+                <textarea rows="2" id="designText" placeholder="PATRIOT&#10;PRINTING">PATRIOT</textarea>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label>Color</label>
+                  <input type="color" id="textColor" value="#f5f1e8" style="width:100%; height:42px; padding:0; border:1px solid var(--rule); border-radius:var(--radius-sm); cursor:pointer">
+                </div>
+                <div class="field">
+                  <label>Size (px)</label>
+                  <input type="number" id="textSize" value="40" min="12" max="120">
+                </div>
+              </div>
+            </div>
+
+            <div id="imageControls" style="display:none">
+              <div class="upload-zone" id="uploadZone">
+                <svg viewBox="0 0 24 24"><path d="M12 2L8 6h3v8h2V6h3l-4-4zM4 18v2h16v-2H4z"/></svg>
+                <span>Upload your design</span>
+              </div>
+              <input type="file" id="fileInput" accept="image/*" style="display:none">
+              <div class="field" style="margin-top:.7rem">
+                <label>Size (% of garment)</label>
+                <input type="range" id="imgSize" min="10" max="60" value="35" style="width:100%">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIZES + QUANTITIES + PRICE -->
+      <div class="ap-right">
+        <div class="panel">
+          <h3>4 · Sizes & Quantity (this color)</h3>
+          <div class="size-qty-grid" id="sizeQtyGrid"></div>
+          <button class="btn btn-dark btn-block" id="addColorBtn" style="margin-top:.9rem">+ Add this color/size combo</button>
+        </div>
+
+        <div class="panel">
+          <h3>Your Order</h3>
+          <div id="addedList">
+            <p class="help" style="text-align:center;padding:.8rem 0">No items added yet</p>
+          </div>
+        </div>
+
+        <div class="panel price-card">
+          <h3>Pricing</h3>
+          <div class="price-line"><span>Total pieces</span><span id="psPieces">0</span></div>
+          <div class="price-line"><span>Garment cost</span><span id="psGarment">$0.00</span></div>
+          <div class="price-line"><span>Decoration</span><span id="psDeco">$0.00</span></div>
+          <div class="price-line"><span>Tier</span><span id="psTier">—</span></div>
+          <div class="price-line total">
+            <span class="lbl">Total</span>
+            <span id="psTotal">$0.00</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Send Order</h3>
+          <form class="checkout-form" id="orderForm">
+            <div class="field"><label>Name</label><input type="text" required></div>
+            <div class="field"><label>Email</label><input type="email" required></div>
+            <div class="field"><label>Phone</label><input type="tel"></div>
+            <div class="field"><label>Notes / deadline</label><textarea rows="2"></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Send Quote Request</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* ============================================================
+     APPAREL CONFIGURATOR
+     ============================================================ */
+
+  // CATEGORIES
+  const CATEGORIES = {
+    tee:     { name: "T-Shirt",    icon: "M50 25 L75 15 Q100 25 125 15 L150 25 L160 50 L140 55 L140 105 L60 105 L60 55 L40 50 Z" },
+    hoodie:  { name: "Hoodie",     icon: "M40 35 Q70 5 100 5 Q130 5 160 35 L168 55 L150 60 L150 110 L50 110 L50 60 L32 55 Z" },
+    longsleeve: { name: "Long Sleeve", icon: "M30 25 L70 15 Q100 25 130 15 L170 25 L180 80 L160 85 L150 60 L150 110 L50 110 L50 60 L40 85 L20 80 Z" },
+    crewneck:{ name: "Crewneck",   icon: "M40 30 L70 20 Q100 30 130 20 L160 30 L165 60 L145 65 L145 110 L55 110 L55 65 L35 60 Z" },
+    polo:    { name: "Polo",       icon: "M50 25 L75 15 Q100 25 125 15 L150 25 L160 50 L140 55 L140 105 L60 105 L60 55 L40 50 Z M85 25 L100 35 L115 25 L115 50 L85 50 Z" }
+  };
+
+  // BRANDS BY CATEGORY (with placeholder pricing)
+  const BRANDS = {
+    tee: [
+      {sku:"G500",   name:"Gildan Heavy Cotton",        price: 4.50, colors: standardColors() },
+      {sku:"3001",   name:"Bella+Canvas Premium Tee",   price: 6.75, colors: premiumColors() },
+      {sku:"PC54",   name:"Port & Company Core",        price: 3.95, colors: standardColors() },
+      {sku:"3600",   name:"Next Level Cotton",          price: 7.25, colors: premiumColors() },
+    ],
+    hoodie: [
+      {sku:"18500",  name:"Gildan Heavy Blend Hoodie",  price: 14.50, colors: standardColors() },
+      {sku:"S1051",  name:"Champion Powerblend",        price: 24.95, colors: champColors() },
+      {sku:"IND4000",name:"Independent Trading Co.",    price: 22.50, colors: premiumColors() },
+    ],
+    longsleeve: [
+      {sku:"5400",   name:"Gildan Heavy Cotton LS",     price: 7.95, colors: standardColors() },
+      {sku:"3501",   name:"Bella+Canvas Long Sleeve",   price: 10.50, colors: premiumColors() },
+    ],
+    crewneck: [
+      {sku:"18000",  name:"Gildan Heavy Blend Crew",    price: 12.95, colors: standardColors() },
+      {sku:"IND3000",name:"Independent Trading Crew",   price: 19.50, colors: premiumColors() },
+    ],
+    polo: [
+      {sku:"8800",   name:"Gildan DryBlend Polo",       price: 9.50, colors: poloColors() },
+      {sku:"K500",   name:"Port Authority Silk Touch",  price: 14.95, colors: poloColors() },
+      {sku:"ST550",  name:"Sport-Tek Performance",      price: 16.50, colors: poloColors() },
+    ]
+  };
+
+  function standardColors(){ return [
+    {n:"White",       hex:"#f5f1e8"},
+    {n:"Black",       hex:"#1a1a1a"},
+    {n:"Navy",        hex:"#1a2841"},
+    {n:"Red",         hex:"#a8324a"},
+    {n:"Heather Gray",hex:"#9b9b9b"},
+    {n:"Royal",       hex:"#2754a8"},
+    {n:"Forest",      hex:"#2d4a37"},
+    {n:"Sand",        hex:"#d4c5a0"},
+  ];}
+  function premiumColors(){ return [
+    {n:"Vintage White",hex:"#ede5d3"},
+    {n:"Solid Black", hex:"#0e0e0e"},
+    {n:"Navy",        hex:"#1a2841"},
+    {n:"Brick",       hex:"#a8324a"},
+    {n:"Heather Mauve",hex:"#a78a9c"},
+    {n:"Olive",       hex:"#5a6336"},
+    {n:"Mustard",     hex:"#c89b3c"},
+    {n:"Dusty Blue",  hex:"#7a8fa8"},
+  ];}
+  function champColors(){ return [
+    {n:"Oxford Gray", hex:"#8c8c8c"},
+    {n:"Navy",        hex:"#1a2841"},
+    {n:"Black",       hex:"#1a1a1a"},
+    {n:"Cardinal",    hex:"#a8324a"},
+  ];}
+  function poloColors(){ return [
+    {n:"White",       hex:"#f5f1e8"},
+    {n:"Navy",        hex:"#1a2841"},
+    {n:"Red",         hex:"#a8324a"},
+    {n:"Black",       hex:"#1a1a1a"},
+    {n:"Forest",      hex:"#2d4a37"},
+    {n:"Royal",       hex:"#2754a8"},
+  ];}
+
+  // SIZES per category
+  const SIZES_BY_CAT = {
+    tee:        ['XS','S','M','L','XL','2XL','3XL','4XL'],
+    hoodie:     ['S','M','L','XL','2XL','3XL'],
+    longsleeve: ['S','M','L','XL','2XL','3XL'],
+    crewneck:   ['S','M','L','XL','2XL','3XL'],
+    polo:       ['S','M','L','XL','2XL','3XL','4XL'],
+  };
+
+  // Decoration cost per piece (DTF transfer, 1 location). Bulk tiers.
+  const DECO_TIERS = [
+    {min:1,   per:7.00, label:"Standard"},
+    {min:12,  per:5.50, label:"12+ (dozen)"},
+    {min:24,  per:4.50, label:"24+"},
+    {min:48,  per:3.75, label:"48+"},
+    {min:100, per:2.95, label:"100+ bulk"},
+    {min:250, per:2.25, label:"250+ wholesale"},
+  ];
+  // 2X+ surcharge per piece
+  const XL_SURCHARGE = { '2XL':2.00, '3XL':3.50, '4XL':4.50 };
+
+  // STATE
+  let cat = 'tee';
+  let brand = BRANDS.tee[0];
+  let color = brand.colors[0];
+  let designMode = 'text';
+  let designText = 'PATRIOT';
+  let textColor = '#f5f1e8';
+  let textSize  = 40;
+  let designImg = null;
+  let imgSize = 35;
+  let qtys = {};   // size -> qty for current selection
+  let added = [];  // committed: {cat, brand, color, qtys}
+
+  // BUILD CATEGORY GRID
+  const catGrid = document.getElementById('catGrid');
+  Object.entries(CATEGORIES).forEach(([key, c]) => {
+    const div = document.createElement('div');
+    div.className = 'cat-tile' + (key===cat?' active':'');
+    div.dataset.cat = key;
+    div.innerHTML = `
+      <svg viewBox="0 0 200 130"><path d="${c.icon}"/></svg>
+      <span>${c.name}</span>
+    `;
+    div.onclick = () => { cat = key; brand = BRANDS[cat][0]; color = brand.colors[0]; renderAll(); };
+    catGrid.appendChild(div);
+  });
+
+  function renderAll(){
+    // category active state
+    [...catGrid.children].forEach(el => el.classList.toggle('active', el.dataset.cat===cat));
+    // brand list
+    const bl = document.getElementById('brandList');
+    bl.innerHTML = '';
+    BRANDS[cat].forEach(b => {
+      const row = document.createElement('div');
+      row.className = 'brand-row' + (b.sku===brand.sku?' active':'');
+      row.innerHTML = `
+        <div>
+          <div class="name">${b.name}</div>
+          <div class="sku">SKU ${b.sku}</div>
+        </div>
+        <div class="price">$${b.price.toFixed(2)}</div>
+      `;
+      row.onclick = () => { brand = b; color = b.colors[0]; renderAll(); };
+      bl.appendChild(row);
+    });
+    // color grid
+    const cg = document.getElementById('colorGrid');
+    cg.innerHTML = '';
+    brand.colors.forEach(c => {
+      const ch = document.createElement('div');
+      ch.className = 'color-chip' + (c.hex===color.hex?' active':'');
+      ch.style.background = c.hex;
+      ch.title = c.n;
+      ch.onclick = () => { color = c; renderAll(); };
+      cg.appendChild(ch);
+    });
+    document.getElementById('colorName').textContent = color.n;
+    // size qty grid
+    const sg = document.getElementById('sizeQtyGrid');
+    sg.innerHTML = '';
+    qtys = {}; // reset
+    SIZES_BY_CAT[cat].forEach(sz => {
+      const lbl = document.createElement('div'); lbl.className='lbl'; lbl.textContent = sz;
+      const inp = document.createElement('input'); inp.type='number'; inp.min='0'; inp.value='0';
+      inp.dataset.size = sz;
+      inp.oninput = () => { qtys[sz] = +inp.value || 0; updatePrice(); };
+      sg.appendChild(lbl); sg.appendChild(inp);
+    });
+    renderMockup();
+    updatePrice();
+  }
+
+  // GARMENT SVG MOCKUPS
+  function garmentSvg(category, fillHex){
+    // attempt high-contrast stroke
+    const stroke = isLight(fillHex) ? '#1a1a1a' : '#0a0a0a';
+    const wrinkle = isLight(fillHex) ? 'rgba(0,0,0,.06)' : 'rgba(0,0,0,.18)';
+    const paths = {
+      tee: `
+        <path d="M50 25 L75 15 Q100 25 125 15 L150 25 L168 55 L142 62 L142 110 L58 110 L58 62 L32 55 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <path d="M75 15 Q100 30 125 15" fill="none" stroke="${wrinkle}" stroke-width="1"/>
+        <path d="M58 62 L58 110 L142 110 L142 62" fill="none" stroke="${wrinkle}" stroke-width=".5"/>
+      `,
+      hoodie: `
+        <path d="M40 38 Q70 8 100 8 Q130 8 160 38 L172 60 L150 65 L150 112 L50 112 L50 65 L28 60 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <path d="M75 18 Q100 0 125 18 L130 35 Q100 30 70 35 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <line x1="100" y1="35" x2="100" y2="80" stroke="${wrinkle}" stroke-width="1.5"/>
+        <ellipse cx="100" cy="78" rx="10" ry="3" fill="none" stroke="${wrinkle}"/>
+        <rect x="60" y="92" width="20" height="14" rx="2" fill="none" stroke="${wrinkle}"/>
+      `,
+      longsleeve: `
+        <path d="M30 28 L70 18 Q100 28 130 18 L170 28 L185 90 L162 95 L150 60 L150 112 L50 112 L50 60 L38 95 L15 90 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <path d="M75 18 Q100 33 125 18" fill="none" stroke="${wrinkle}"/>
+      `,
+      crewneck: `
+        <path d="M40 32 L70 22 Q100 32 130 22 L160 32 L168 60 L145 65 L145 112 L55 112 L55 65 L32 60 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <path d="M70 22 Q100 35 130 22" fill="none" stroke="${wrinkle}"/>
+        <line x1="55" y1="105" x2="145" y2="105" stroke="${wrinkle}" stroke-width="1.5"/>
+        <line x1="38" y1="92" x2="50" y2="92" stroke="${wrinkle}" stroke-width="1.5"/>
+        <line x1="150" y1="92" x2="162" y2="92" stroke="${wrinkle}" stroke-width="1.5"/>
+      `,
+      polo: `
+        <path d="M50 25 L75 15 Q100 25 125 15 L150 25 L168 55 L142 62 L142 110 L58 110 L58 62 L32 55 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <path d="M85 18 L100 35 L115 18 L120 35 L100 50 L80 35 Z" fill="${fillHex}" stroke="${stroke}" stroke-width="1.5"/>
+        <line x1="100" y1="35" x2="100" y2="65" stroke="${wrinkle}" stroke-width="1"/>
+        <circle cx="100" cy="48" r="1.2" fill="${stroke}"/>
+        <circle cx="100" cy="58" r="1.2" fill="${stroke}"/>
+      `
+    };
+    return `
+      <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg">
+        ${paths[category] || paths.tee}
+      </svg>
+    `;
+  }
+
+  function isLight(hex){
+    const r = parseInt(hex.slice(1,3),16), g = parseInt(hex.slice(3,5),16), b = parseInt(hex.slice(5,7),16);
+    return (0.299*r + 0.587*g + 0.114*b) > 150;
+  }
+
+  function renderMockup(){
+    const stage = document.getElementById('mockupStage');
+    stage.innerHTML = garmentSvg(cat, color.hex);
+    // overlay design
+    const overlay = document.createElement('div');
+    overlay.className = 'design-overlay';
+    overlay.style.left = '50%';
+    overlay.style.top  = '54%';
+    overlay.style.width  = '40%';
+    overlay.style.height = '32%';
+    overlay.style.display = 'flex';
+    overlay.style.alignItems = 'center';
+    overlay.style.justifyContent = 'center';
+
+    if(designMode === 'text'){
+      const div = document.createElement('div');
+      div.className = 'design-overlay-text';
+      div.textContent = designText;
+      div.style.setProperty('--design-color', textColor);
+      div.style.setProperty('--design-size', textSize + 'px');
+      overlay.appendChild(div);
+    } else if(designMode === 'image' && designImg){
+      const img = document.createElement('img');
+      img.src = designImg;
+      overlay.style.width  = imgSize + '%';
+      overlay.style.height = (imgSize * 0.8) + '%';
+      overlay.appendChild(img);
+    }
+    stage.appendChild(overlay);
+
+    document.getElementById('mockupMeta').textContent =
+      `${CATEGORIES[cat].name} · ${brand.name} · ${color.n}`;
+  }
+
+  // DESIGN MODE TOGGLES
+  document.querySelectorAll('.design-tab').forEach(t => {
+    t.onclick = () => {
+      designMode = t.dataset.mode;
+      document.querySelectorAll('.design-tab').forEach(x => x.classList.toggle('active', x===t));
+      document.getElementById('textControls').style.display  = designMode==='text'  ? 'block' : 'none';
+      document.getElementById('imageControls').style.display = designMode==='image' ? 'block' : 'none';
+      renderMockup();
+    };
+  });
+  document.getElementById('designText').oninput = e => { designText = e.target.value; renderMockup(); };
+  document.getElementById('textColor').oninput  = e => { textColor = e.target.value; renderMockup(); };
+  document.getElementById('textSize').oninput   = e => { textSize  = +e.target.value || 40; renderMockup(); };
+
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput  = document.getElementById('fileInput');
+  uploadZone.onclick = () => fileInput.click();
+  fileInput.onchange = e => {
+    if(!e.target.files[0]) return;
+    const r = new FileReader();
+    r.onload = ev => { designImg = ev.target.result; renderMockup(); };
+    r.readAsDataURL(e.target.files[0]);
+  };
+  document.getElementById('imgSize').oninput = e => { imgSize = +e.target.value; renderMockup(); };
+
+  // ADD CURRENT TO ORDER
+  document.getElementById('addColorBtn').onclick = () => {
+    const filled = Object.entries(qtys).filter(([,v]) => v > 0);
+    if(!filled.length){ alert('Set quantity for at least one size first.'); return; }
+    added.push({
+      cat, catName: CATEGORIES[cat].name,
+      brand: {...brand},
+      color: {...color},
+      qtys: Object.fromEntries(filled)
+    });
+    renderAdded();
+    // reset qty inputs
+    document.querySelectorAll('#sizeQtyGrid input').forEach(inp => { inp.value = 0; });
+    qtys = {};
+    updatePrice();
+  };
+
+  function renderAdded(){
+    const list = document.getElementById('addedList');
+    if(!added.length){ list.innerHTML = '<p class="help" style="text-align:center;padding:.8rem 0">No items added yet</p>'; return;}
+    list.innerHTML = '';
+    added.forEach((a, idx) => {
+      const totalPieces = Object.values(a.qtys).reduce((s,v)=>s+v,0);
+      const sizesStr = Object.entries(a.qtys).map(([s,q]) => `${s}×${q}`).join(' · ');
+      const row = document.createElement('div');
+      row.className = 'added-row';
+      row.innerHTML = `
+        <div class="added-swatch" style="background:${a.color.hex}"></div>
+        <div class="added-name">
+          ${a.catName} — ${a.color.n}
+          <div style="font-family:var(--font-mono);font-size:.7rem;color:var(--slate);font-weight:400;margin-top:2px">
+            ${a.brand.name} · ${sizesStr}
+          </div>
+        </div>
+        <div class="added-qty">${totalPieces} pcs</div>
+        <button class="added-rm" data-i="${idx}">✕</button>
+      `;
+      list.appendChild(row);
+    });
+    list.querySelectorAll('.added-rm').forEach(btn => {
+      btn.onclick = () => { added.splice(+btn.dataset.i, 1); renderAdded(); updatePrice(); };
+    });
+  }
+
+  // PRICING
+  function totalPieces(){
+    let total = 0;
+    added.forEach(a => Object.values(a.qtys).forEach(q => total += q));
+    Object.values(qtys).forEach(q => total += q || 0);
+    return total;
+  }
+
+  function updatePrice(){
+    const pieces = totalPieces();
+    let tier = DECO_TIERS[0];
+    DECO_TIERS.forEach(t => { if(pieces >= t.min) tier = t; });
+
+    let garment = 0, deco = 0;
+
+    // committed lines
+    added.forEach(a => {
+      Object.entries(a.qtys).forEach(([sz,q]) => {
+        garment += q * (a.brand.price + (XL_SURCHARGE[sz] || 0));
+        deco    += q * tier.per;
+      });
+    });
+    // current pending line
+    Object.entries(qtys).forEach(([sz,q]) => {
+      if(!q) return;
+      garment += q * (brand.price + (XL_SURCHARGE[sz] || 0));
+      deco    += q * tier.per;
+    });
+
+    const total = garment + deco;
+
+    document.getElementById('psPieces').textContent  = pieces;
+    document.getElementById('psGarment').textContent = '$' + garment.toFixed(2);
+    document.getElementById('psDeco').textContent    = '$' + deco.toFixed(2);
+    document.getElementById('psTier').textContent    = tier.label;
+    document.getElementById('psTotal').textContent   = '$' + total.toFixed(2);
+  }
+
+  // ORDER FORM
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    e.preventDefault();
+    if(!added.length){ alert('Add at least one color/size combo to your order first.'); return; }
+    const f = e.target;
+    const lines = added.map(a => {
+      const sizes = Object.entries(a.qtys).map(([s,q]) => `  ${s}: ${q}`).join('\n');
+      return `• ${a.catName} — ${a.brand.name} (${a.brand.sku}) — ${a.color.n}\n${sizes}`;
+    }).join('\n');
+    const body = encodeURIComponent(
+`Hi Patriot Printing,
+
+I'd like to place an apparel order:
+
+${lines}
+
+Design: ${designMode === 'text' ? `Text — "${designText}"` : 'Image (uploaded — will send file)'}
+
+Total estimate (from your site): ${document.getElementById('psTotal').textContent}
+
+Notes: ${f.elements[3].value || '—'}
+
+Name:  ${f.elements[0].value}
+Email: ${f.elements[1].value}
+Phone: ${f.elements[2].value || '—'}
+
+Thanks!`);
+    window.location.href = `mailto:patriotprintingllc@gmail.com?subject=Apparel Order&body=${body}`;
+  });
+
+  // INIT
+  renderAll();
+  </script>
+</body>
+</html>

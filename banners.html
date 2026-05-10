@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Banners · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  .bn-shell{display:grid; grid-template-columns: 1.2fr 380px; gap:1.5rem; margin-top:1.5rem; align-items:start}
+  @media (max-width:900px){.bn-shell{grid-template-columns:1fr}}
+
+  .panel{background:#fff;border:1px solid var(--rule); padding:1.4rem}
+  .panel + .panel{margin-top:1rem}
+  .panel h3{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--navy); margin-bottom:.85rem; font-weight:600;
+  }
+
+  .upload-zone{
+    border:2px dashed var(--rule); background:var(--cream-soft);
+    padding: 1.5rem; text-align:center; cursor:pointer; transition: all .2s;
+    border-radius: var(--radius-sm);
+  }
+  .upload-zone:hover{border-color:var(--brick); background:#fff}
+  .upload-zone svg{width:36px;height:36px;margin:0 auto .5rem;fill:var(--navy)}
+  .upload-zone span{font-weight:600;color:var(--navy);display:block}
+
+  .banner-preview-wrap{
+    background: repeating-linear-gradient(45deg, #f5f1e8, #f5f1e8 10px, #ebe5d4 10px, #ebe5d4 11px);
+    padding: 2rem; min-height: 280px;
+    display:grid; place-items:center;
+    border:1px dashed var(--rule);
+    overflow-x:auto;
+  }
+  .banner-preview{
+    background:#fff;
+    border: 2px solid var(--brick);
+    box-shadow: var(--shadow-md);
+    position:relative;
+    display:grid; place-items:center;
+    overflow:hidden;
+  }
+  .banner-preview img{max-width:100%;max-height:100%;object-fit:contain}
+  .banner-preview .banner-text{
+    font-family: var(--font-display);
+    font-weight: 800;
+    color: var(--banner-color, #1a2841);
+    text-align:center;
+    padding: 1rem;
+    line-height: 1.05;
+    font-size: var(--banner-font-size, 56px);
+    letter-spacing: -.01em;
+  }
+  /* grommets */
+  .grommet{
+    position:absolute; width:8px;height:8px; background:#888; border-radius:50%;
+    border: 1.5px solid #444;
+    box-shadow: inset 0 0 0 1.5px #fff;
+  }
+
+  .picker-row{display:flex; flex-wrap:wrap; gap:.4rem}
+  .picker-row .size-btn{padding:.55rem .85rem}
+
+  .spec-card{
+    background: var(--cream-soft);
+    border-left: 3px solid var(--brick);
+    padding: 1rem 1.1rem;
+    font-size:.88rem;
+  }
+  .spec-card strong{color:var(--brick); font-family:var(--font-mono); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem}
+  .spec-card ul{margin:.4rem 0 0 1rem; line-height:1.6; color:var(--navy)}
+
+  .price-card{background:var(--navy);color:var(--cream);padding:1.4rem}
+  .price-card h3{color:var(--cream)}
+  .price-line{display:flex;justify-content:space-between;padding:.45rem 0;font-size:.88rem;
+    border-bottom:1px dashed rgba(255,255,255,.15)}
+  .price-line:last-of-type{border:none}
+  .price-line.total{
+    margin-top:.6rem; padding-top:.85rem; border-top:1px solid rgba(255,255,255,.3); border-bottom:none;
+    font-family: var(--font-display); font-weight:800; font-size:1.7rem;
+  }
+  .price-line.total .lbl{font-size:.7rem; font-family:var(--font-mono); letter-spacing:.18em; text-transform:uppercase; opacity:.7}
+
+  .checkout-form .field{margin-bottom:.7rem}
+  .checkout-form input{font-size:.85rem; padding:.55rem .7rem}
+
+  .text-inputs .field-row{margin-top:.4rem}
+
+  .field input[type=color]{height:42px;padding:0;cursor:pointer}
+</style>
+</head>
+<body data-page="banners">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color:var(--gold)">★ Tool 04 / Signage</div>
+      <h1>Custom Banners</h1>
+      <p>61" wide premium 13oz vinyl banners. Pick a length, drop in your art (or text), pick your quantity. Bulk pricing built in.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="bn-shell">
+
+      <!-- LEFT: PREVIEW + DESIGN -->
+      <div>
+        <div class="panel">
+          <h3>Banner Preview</h3>
+          <div class="banner-preview-wrap">
+            <div class="banner-preview" id="bannerPreview">
+              <div class="banner-text" id="bannerText">YOUR MESSAGE HERE</div>
+            </div>
+          </div>
+          <div class="spec-card" style="margin-top:1rem">
+            <strong>★ Banner Specifications</strong>
+            <ul>
+              <li>Premium <strong>13oz scrim vinyl</strong> — heavy-duty, indoor & outdoor rated</li>
+              <li>Fully finished edges, double-stitched hems, reinforced corners</li>
+              <li>Heat-sealed taping for durability</li>
+              <li>Brass grommets every <strong>18-24 inches</strong> on all four sides</li>
+              <li>Print is full-color, 1440dpi, weather and UV resistant</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Add Your Design</h3>
+          <div class="text-inputs">
+            <div class="field">
+              <label>Banner Text (or upload image below)</label>
+              <textarea rows="2" id="bannerTextInput">YOUR MESSAGE HERE</textarea>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>Text Color</label>
+                <input type="color" id="textColor" value="#a8324a">
+              </div>
+              <div class="field">
+                <label>Background</label>
+                <input type="color" id="bgColor" value="#f5f1e8">
+              </div>
+            </div>
+          </div>
+          <div class="upload-zone" id="uploadZone" style="margin-top:.85rem">
+            <svg viewBox="0 0 24 24"><path d="M12 2L8 6h3v8h2V6h3l-4-4zM4 18v2h16v-2H4z"/></svg>
+            <span>Or upload finished artwork</span>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none">
+        </div>
+      </div>
+
+      <!-- RIGHT: SIZE + QTY + PRICE -->
+      <div>
+        <div class="panel">
+          <h3>1 · Banner Length</h3>
+          <p class="help" style="margin-bottom:.5rem">Width is fixed at 61"</p>
+          <div class="picker-row" id="lengthPicker"></div>
+        </div>
+
+        <div class="panel">
+          <h3>2 · Quantity</h3>
+          <div class="field">
+            <input type="number" id="qtyInput" min="1" value="1">
+          </div>
+          <p class="help">Bulk discounts kick in at 5+ banners.</p>
+        </div>
+
+        <div class="panel price-card">
+          <h3>Pricing</h3>
+          <div class="price-line"><span>Size</span><span id="psSize">61" × 2'</span></div>
+          <div class="price-line"><span>Sq ft each</span><span id="psSqft">10.2</span></div>
+          <div class="price-line"><span>Quantity</span><span id="psQty">1</span></div>
+          <div class="price-line"><span>Per banner</span><span id="psPer">$0</span></div>
+          <div class="price-line"><span>Volume tier</span><span id="psTier">Standard</span></div>
+          <div class="price-line total">
+            <span class="lbl">Total</span>
+            <span id="psTotal">$0</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Send Order</h3>
+          <form class="checkout-form" id="orderForm">
+            <div class="field"><label>Name</label><input type="text" required></div>
+            <div class="field"><label>Email</label><input type="email" required></div>
+            <div class="field"><label>Phone</label><input type="tel"></div>
+            <div class="field"><label>Notes / deadline</label><textarea rows="2"></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Send Quote Request</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* ============================================================
+     BANNER CONFIGURATOR
+     ============================================================ */
+  const BANNER_WIDTH_IN = 61;
+  const LENGTHS_FT = [2, 4, 6, 8, 10, 12, 18, 24];
+
+  // Pricing: per sqft, scales down with size and quantity
+  const SQFT_BASE_RATE = 4.25;  // base $/sqft
+  const SIZE_DISCOUNT = [    // by length tier
+    {minFt: 0,  rate: 4.25},
+    {minFt: 6,  rate: 3.75},
+    {minFt: 12, rate: 3.25},
+    {minFt: 18, rate: 2.85},
+  ];
+  const QTY_TIERS = [
+    {min: 1,  mult:1.00, label:"Standard"},
+    {min: 3,  mult:0.92, label:"3+ (8% off)"},
+    {min: 5,  mult:0.85, label:"5+ (15% off)"},
+    {min: 10, mult:0.75, label:"10+ (25% off)"},
+    {min: 25, mult:0.65, label:"25+ (35% off)"},
+  ];
+
+  // STATE
+  let lengthFt = 2;
+  let qty = 1;
+  let bannerText = "YOUR MESSAGE HERE";
+  let textColor = "#a8324a";
+  let bgColor = "#f5f1e8";
+  let imgUrl = null;
+
+  // BUILD LENGTH PICKER
+  const lengthPicker = document.getElementById('lengthPicker');
+  LENGTHS_FT.forEach(ft => {
+    const b = document.createElement('button');
+    b.className = 'size-btn' + (ft===lengthFt?' active':'');
+    b.textContent = ft + "'";
+    b.dataset.ft = ft;
+    b.onclick = () => { lengthFt = ft; updateUI(); };
+    lengthPicker.appendChild(b);
+  });
+
+  // INPUTS
+  document.getElementById('qtyInput').oninput = e => { qty = Math.max(1, +e.target.value || 1); updateUI(); };
+  document.getElementById('bannerTextInput').oninput = e => { bannerText = e.target.value; updatePreview(); };
+  document.getElementById('textColor').oninput = e => { textColor = e.target.value; updatePreview(); };
+  document.getElementById('bgColor').oninput = e => { bgColor = e.target.value; updatePreview(); };
+
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+  uploadZone.onclick = () => fileInput.click();
+  fileInput.onchange = e => {
+    if(!e.target.files[0]) return;
+    const r = new FileReader();
+    r.onload = ev => { imgUrl = ev.target.result; updatePreview(); };
+    r.readAsDataURL(e.target.files[0]);
+  };
+
+  // PREVIEW
+  function updatePreview(){
+    const preview = document.getElementById('bannerPreview');
+    // size preview to fit available area but keep aspect
+    // banner is 61" wide x (lengthFt*12)" — preview width ~440px max
+    const maxW = 440;
+    const aspect = (lengthFt * 12) / BANNER_WIDTH_IN;
+    const previewW = maxW;
+    const previewH = previewW * aspect;
+    preview.style.width  = previewW + 'px';
+    preview.style.height = previewH + 'px';
+    preview.style.background = bgColor;
+    preview.innerHTML = '';
+
+    if(imgUrl){
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      preview.appendChild(img);
+    } else {
+      const div = document.createElement('div');
+      div.className = 'banner-text';
+      div.textContent = bannerText;
+      div.style.setProperty('--banner-color', textColor);
+      // scale font to preview width
+      const fontPx = Math.min(previewH * 0.45, previewW / Math.max(8, bannerText.length * 0.5));
+      div.style.setProperty('--banner-font-size', fontPx + 'px');
+      preview.appendChild(div);
+    }
+
+    // grommets — every ~18px in this preview, mirror to real every 18-24"
+    addGrommets(preview, previewW, previewH);
+  }
+
+  function addGrommets(el, w, h){
+    const spacingPx = 60;
+    const inset = 8;
+    // top + bottom
+    for(let x = inset; x <= w - inset; x += spacingPx){
+      ['top','bottom'].forEach(side => {
+        const g = document.createElement('div');
+        g.className = 'grommet';
+        g.style.left = x + 'px';
+        g.style[side] = '4px';
+        el.appendChild(g);
+      });
+    }
+    // last one to anchor far edge if not aligned
+    ['top','bottom'].forEach(side => {
+      const g = document.createElement('div');
+      g.className = 'grommet'; g.style.right = inset+'px'; g.style[side]='4px';
+      el.appendChild(g);
+    });
+    // sides (sparse)
+    for(let y = inset; y <= h - inset; y += spacingPx){
+      ['left','right'].forEach(side => {
+        const g = document.createElement('div');
+        g.className='grommet'; g.style.top = y+'px'; g.style[side]='4px';
+        el.appendChild(g);
+      });
+    }
+  }
+
+  // PRICING
+  function calc(){
+    const widthFt = BANNER_WIDTH_IN / 12;  // ≈ 5.083 ft
+    const sqft = widthFt * lengthFt;
+    let rate = SIZE_DISCOUNT[0].rate;
+    SIZE_DISCOUNT.forEach(t => { if(lengthFt >= t.minFt) rate = t.rate; });
+    let qtyTier = QTY_TIERS[0];
+    QTY_TIERS.forEach(t => { if(qty >= t.min) qtyTier = t; });
+    const perBanner = sqft * rate * qtyTier.mult;
+    const total = perBanner * qty;
+    return {sqft, rate, qtyTier, perBanner, total};
+  }
+
+  function updateUI(){
+    [...lengthPicker.children].forEach(b => b.classList.toggle('active', +b.dataset.ft === lengthFt));
+    const {sqft, qtyTier, perBanner, total} = calc();
+    document.getElementById('psSize').textContent  = `61" × ${lengthFt}'`;
+    document.getElementById('psSqft').textContent  = sqft.toFixed(1);
+    document.getElementById('psQty').textContent   = qty;
+    document.getElementById('psPer').textContent   = '$' + perBanner.toFixed(2);
+    document.getElementById('psTier').textContent  = qtyTier.label;
+    document.getElementById('psTotal').textContent = '$' + total.toFixed(2);
+    updatePreview();
+  }
+
+  // ORDER
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const {total, qtyTier} = calc();
+    const body = encodeURIComponent(
+`Hi Patriot Printing,
+
+I'd like to order custom banners:
+
+Size: 61" × ${lengthFt}' (13oz scrim vinyl, fully finished, grommets every 18-24")
+Quantity: ${qty}
+Tier: ${qtyTier.label}
+Estimated total: $${total.toFixed(2)}
+
+Design: ${imgUrl ? 'Image (will send file)' : `Text — "${bannerText}"`}
+
+Notes: ${f.elements[3].value || '—'}
+
+Name:  ${f.elements[0].value}
+Email: ${f.elements[1].value}
+Phone: ${f.elements[2].value || '—'}
+
+Thanks!`);
+    window.location.href = `mailto:patriotprintingllc@gmail.com?subject=Banner Order&body=${body}`;
+  });
+
+  updateUI();
+  </script>
+</body>
+</html>

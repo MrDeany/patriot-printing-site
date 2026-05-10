@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Company Storefronts · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  /* hero block */
+  .stores-hero{
+    background: var(--cream);
+    padding: 3.5rem 0 2.5rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .stores-hero-grid{
+    display:grid; grid-template-columns: 1.4fr 1fr; gap: 3rem; align-items: center;
+  }
+  @media (max-width: 900px){.stores-hero-grid{grid-template-columns:1fr}}
+
+  .stores-hero h2{
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    color: var(--navy);
+    line-height: 1.05;
+    letter-spacing: -.02em;
+    margin: .5rem 0 1rem;
+  }
+  .stores-hero h2 em{color: var(--brick); font-style: italic; font-weight: 400}
+  .stores-hero p{font-size: 1rem; color: var(--slate); line-height:1.65; max-width: 52ch}
+
+  .how-card{
+    background: #fff;
+    border: 1px solid var(--rule);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-card h3{
+    font-family: var(--font-mono); font-size: .72rem; letter-spacing:.18em;
+    text-transform:uppercase; color: var(--brick); margin-bottom: 1rem;
+  }
+  .how-list{list-style:none}
+  .how-list li{
+    display:grid; grid-template-columns: 28px 1fr; gap:.75rem;
+    padding: .55rem 0; align-items:start;
+  }
+  .how-list li::before{
+    content: counter(step);
+    counter-increment: step;
+    background: var(--navy); color: var(--cream);
+    width:24px;height:24px; display:grid; place-items:center;
+    font-family: var(--font-mono); font-size: .72rem; font-weight: 600;
+    border-radius: 50%;
+  }
+  .how-list{counter-reset: step}
+  .how-list li span{font-size:.92rem; color: var(--navy); line-height: 1.5}
+
+  /* directory header */
+  .dir-head{
+    display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:1rem;
+    margin-bottom: 2rem;
+  }
+  .dir-head h2{
+    font-family: var(--font-display); font-weight:800;
+    font-size: clamp(1.6rem, 3vw, 2.2rem); color: var(--navy);
+    letter-spacing:-.02em;
+  }
+  .dir-head .count{
+    font-family: var(--font-mono); font-size: .78rem; letter-spacing: .1em;
+    color: var(--slate);
+  }
+
+  /* search */
+  .dir-search{
+    background:#fff; border:1px solid var(--rule);
+    padding: .55rem .85rem; display:flex; align-items:center; gap:.6rem;
+    border-radius: var(--radius-sm);
+    margin-bottom: 1.5rem;
+  }
+  .dir-search svg{width:18px;height:18px;fill:var(--slate);flex-shrink:0}
+  .dir-search input{
+    flex:1; border:none; outline:none; font-size:.95rem; background:transparent;
+    color: var(--navy);
+  }
+
+  /* store cards grid */
+  .stores-grid{
+    display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.25rem;
+  }
+  .store-card{
+    background:#fff; border: 1px solid var(--rule);
+    transition: all .25s; display: flex; flex-direction: column;
+    text-decoration: none; color: inherit; overflow: hidden;
+  }
+  .store-card:hover{
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--navy);
+  }
+  .store-banner{
+    height: 130px;
+    background: var(--navy);
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .store-banner::before{
+    content:""; position:absolute; inset:0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 12px, rgba(245,241,232,.05) 12px, rgba(245,241,232,.05) 13px);
+  }
+  .store-logo{
+    width: 80px; height: 80px;
+    background: var(--cream);
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 900; font-size: 2.4rem;
+    color: var(--navy);
+    border: 3px solid var(--brick);
+    position: relative; z-index:1;
+  }
+  .store-body{padding: 1.25rem 1.4rem 1.4rem; flex: 1; display: flex; flex-direction: column}
+  .store-name{
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--navy);
+    letter-spacing: -.01em;
+    margin-bottom: .35rem;
+  }
+  .store-tag{
+    font-family: var(--font-mono); font-size: .68rem;
+    letter-spacing: .15em; text-transform: uppercase;
+    color: var(--brick);
+    margin-bottom: .75rem;
+  }
+  .store-desc{font-size: .88rem; color: var(--slate); line-height: 1.5; flex: 1}
+  .store-meta{
+    display:flex; gap: .5rem; flex-wrap: wrap; margin-top: .85rem;
+  }
+  .store-cta{
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; align-items: center;
+    font-family: var(--font-mono); font-size: .72rem; letter-spacing: .15em;
+    text-transform: uppercase; color: var(--brick);
+  }
+
+  /* empty state for missing stores */
+  .empty-state{
+    text-align:center; padding: 3rem 1rem; color: var(--slate);
+    grid-column: 1 / -1;
+  }
+
+  /* admin CTA */
+  .admin-cta{
+    background: var(--navy);
+    color: var(--cream);
+    padding: 3rem 0;
+    margin-top: 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .admin-cta::before{
+    content:""; position:absolute;inset:0;
+    background: radial-gradient(circle at 20% 50%, rgba(168,50,74,.18), transparent 50%);
+  }
+  .admin-cta .wrap{position:relative; display:grid; grid-template-columns: 1.5fr 1fr; gap:3rem; align-items:center}
+  @media (max-width: 800px){.admin-cta .wrap{grid-template-columns:1fr}}
+  .admin-cta h3{
+    font-family: var(--font-display); font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    line-height: 1.1; letter-spacing:-.02em;
+    margin-bottom: 1rem;
+  }
+  .admin-cta h3 em{color: var(--brick); font-style: italic}
+  .admin-cta p{opacity:.85; line-height: 1.6; margin-bottom: 1.25rem; max-width: 50ch}
+  .admin-cta .btn{align-self:start}
+
+  /* note for editors */
+  .editor-note{
+    background: var(--cream-soft);
+    border-left: 3px solid var(--gold);
+    padding: 1rem 1.2rem;
+    font-size: .88rem; color: var(--navy);
+    margin-bottom: 2rem;
+    font-family: var(--font-mono);
+  }
+  .editor-note strong{color: var(--brick); font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:.3rem}
+</style>
+</head>
+<body data-page="stores">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color:var(--gold)">★ Tool 07 / Wholesale</div>
+      <h1>Company Storefronts</h1>
+      <p>Private branded ordering portals for businesses, units, and teams. Pre-decorated apparel and gear, sized and approved, ready for your people to order at the click of a button.</p>
+    </div>
+  </header>
+
+  <!-- HERO / EXPLAINER -->
+  <section class="stores-hero">
+    <div class="wrap stores-hero-grid">
+      <div>
+        <div class="eyebrow">How it works</div>
+        <h2>Your team, <em>their own portal.</em></h2>
+        <p>
+          A company store is a dedicated page where your employees, members, or volunteers can
+          order pre-approved branded gear at agreed pricing. We design it, stock it, and
+          fulfill orders directly — you don't carry inventory, you don't run a checkout,
+          you don't process returns. We handle the printing and the ship-out, you just
+          point your team here.
+        </p>
+      </div>
+      <div class="how-card">
+        <h3>What you get</h3>
+        <ol class="how-list">
+          <li><span>A dedicated page (or subdomain) with your logo, colors, and approved gear.</span></li>
+          <li><span>Locked-in pricing for your team — no shopping around.</span></li>
+          <li><span>Built-in size & color options across t-shirts, polos, hoodies, hats, and more.</span></li>
+          <li><span>Optional bulk windows, individual fulfillment, or hybrid setups.</span></li>
+          <li><span>Monthly reporting on what your team ordered.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIRECTORY -->
+  <section class="section">
+    <div class="wrap">
+
+      <div class="editor-note">
+        <strong>For Patriot Printing Admin</strong>
+        To add a new company store, edit the <code>STOREFRONTS</code> array in this page's
+        script block. Each entry needs a name, slug, color, tagline, description, and
+        URL. Real subdomain hosting is handled separately with your DNS provider.
+      </div>
+
+      <div class="dir-head">
+        <div>
+          <div class="eyebrow">Active portals</div>
+          <h2>Browse our company stores</h2>
+        </div>
+        <div class="count" id="storeCount"></div>
+      </div>
+
+      <div class="dir-search">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="searchInput" placeholder="Search company stores...">
+      </div>
+
+      <div class="stores-grid" id="storesGrid"></div>
+
+    </div>
+  </section>
+
+  <!-- ADMIN CTA -->
+  <section class="admin-cta">
+    <div class="wrap">
+      <div>
+        <h3>Want a private store for <em>your team?</em></h3>
+        <p>
+          Whether you've got a unit of 30 or a company of 3,000, we'll build you a portal
+          that fits the way your people order. Drop us a note and we'll send back a sample
+          mock-up within a couple of business days.
+        </p>
+        <a href="mailto:patriotprintingllc@gmail.com?subject=New Company Store Request" class="btn btn-primary">Request a Store</a>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: .78rem; line-height: 1.7; opacity: .8">
+        ★ Set up free<br>
+        ★ No order minimums on most accounts<br>
+        ★ Bulk pricing locked in for the year<br>
+        ★ Custom URL or subdomain available<br>
+        ★ Optional in-house fulfillment for special events
+      </div>
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* ============================================================
+     COMPANY STOREFRONTS — directory data
+     To add a new store, append an object to STOREFRONTS below.
+     Required fields: slug, name, initials, tagline, description, color, url
+     Optional: tags (array of small labels)
+     ============================================================ */
+  const STOREFRONTS = [
+    {
+      slug: 'scott-afb-mwr',
+      name: 'Scott AFB MWR',
+      initials: 'M',
+      tagline: 'Morale, Welfare & Recreation',
+      description: 'Official MWR-branded apparel and event gear for staff and family programs at Scott AFB.',
+      color: '#1a2841',
+      url: 'mailto:patriotprintingllc@gmail.com?subject=Scott AFB MWR Store',
+      tags: ['Tees', 'Polos', 'Hats']
+    },
+    {
+      slug: 'riverside-fire',
+      name: 'Riverside Fire Dept.',
+      initials: 'R',
+      tagline: 'Department & Training Gear',
+      description: 'Department-issued tees, hoodies, and training shirts. Pre-approved designs locked in by the chief.',
+      color: '#a8324a',
+      url: 'mailto:patriotprintingllc@gmail.com?subject=Riverside Fire Dept Store',
+      tags: ['Department Issue', 'Training']
+    },
+    {
+      slug: 'metro-east-hvac',
+      name: 'Metro East HVAC',
+      initials: 'H',
+      tagline: 'Field Tech Uniforms',
+      description: 'Embroidered work shirts, hoodies, and high-vis tees with each tech\'s name. Reorder directly through the portal.',
+      color: '#c89b3c',
+      url: 'mailto:patriotprintingllc@gmail.com?subject=Metro East HVAC Store',
+      tags: ['Embroidery', 'Hi-Vis']
+    },
+    {
+      slug: 'belleville-hs-track',
+      name: 'Belleville HS Track',
+      initials: 'B',
+      tagline: 'Team Spirit Wear',
+      description: 'Open ordering window for team gear, parent shirts, and end-of-season hoodies. Coach-approved designs only.',
+      color: '#2d4a37',
+      url: 'mailto:patriotprintingllc@gmail.com?subject=Belleville HS Track Store',
+      tags: ['Team Wear', 'Parents']
+    },
+    {
+      slug: 'patriot-internal',
+      name: 'Patriot Printing — Internal',
+      initials: 'P',
+      tagline: 'Our own shop merch',
+      description: 'Staff polos, branded jackets, and tradeshow gear for the Patriot Printing crew. Internal use only.',
+      color: '#1a2841',
+      url: 'mailto:patriotprintingllc@gmail.com?subject=Patriot Internal Store',
+      tags: ['Internal']
+    }
+  ];
+
+  // RENDER
+  const grid = document.getElementById('storesGrid');
+  const countEl = document.getElementById('storeCount');
+
+  function render(filter = ''){
+    const f = filter.toLowerCase().trim();
+    const list = STOREFRONTS.filter(s =>
+      !f ||
+      s.name.toLowerCase().includes(f) ||
+      s.tagline.toLowerCase().includes(f) ||
+      (s.tags || []).some(t => t.toLowerCase().includes(f))
+    );
+
+    countEl.textContent = list.length === 0
+      ? `No matches for "${filter}"`
+      : `${list.length} active portal${list.length === 1 ? '' : 's'}`;
+
+    if(list.length === 0){
+      grid.innerHTML = `
+        <div class="empty-state">
+          <p>No company stores match your search.</p>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = list.map(s => `
+      <a href="${s.url}" class="store-card">
+        <div class="store-banner" style="background: ${s.color}">
+          <div class="store-logo" style="color: ${s.color}">${s.initials}</div>
+        </div>
+        <div class="store-body">
+          <div class="store-tag">${s.tagline}</div>
+          <div class="store-name">${s.name}</div>
+          <div class="store-desc">${s.description}</div>
+          ${(s.tags || []).length ? `
+            <div class="store-meta">
+              ${s.tags.map(t => `<span class="chip">${t}</span>`).join('')}
+            </div>
+          ` : ''}
+          <div class="store-cta">
+            <span>Visit store</span>
+            <span>→</span>
+          </div>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  document.getElementById('searchInput').addEventListener('input', e => render(e.target.value));
+  render();
+  </script>
+</body>
+</html>

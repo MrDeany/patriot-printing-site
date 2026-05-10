@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Custom Yard Signs · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  .ys-shell{display:grid; grid-template-columns: 1fr 380px; gap:1.5rem; margin-top:1.5rem; align-items:start}
+  @media (max-width:900px){.ys-shell{grid-template-columns:1fr}}
+
+  .panel{background:#fff;border:1px solid var(--rule); padding:1.4rem}
+  .panel + .panel{margin-top:1rem}
+  .panel h3{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--navy); margin-bottom:.85rem; font-weight:600;
+  }
+
+  /* side tabs */
+  .side-tabs{display:flex; border-bottom:1px solid var(--rule); margin-bottom:1.25rem}
+  .side-tab{
+    padding:.75rem 1.25rem; cursor:pointer; transition: all .15s;
+    font-family: var(--font-mono); font-size:.78rem; letter-spacing:.12em; text-transform:uppercase;
+    color: var(--slate);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+  }
+  .side-tab:hover{color:var(--navy)}
+  .side-tab.active{color:var(--brick); border-bottom-color: var(--brick)}
+  .side-tab.disabled{opacity:.4; cursor:not-allowed}
+
+  .toggle-row{display:flex; gap:.5rem; margin-bottom: .5rem}
+  .toggle-row .size-btn{flex:1; padding:.65rem}
+
+  /* preview stage */
+  .yard-stage{
+    background:
+      repeating-linear-gradient(45deg, #f5f1e8, #f5f1e8 10px, #ebe5d4 10px, #ebe5d4 11px);
+    padding: 2.5rem; min-height: 460px;
+    display:grid; place-items:center;
+    border:1px dashed var(--rule);
+    position:relative;
+  }
+  .yard-sign{
+    width: 360px;
+    aspect-ratio: 24 / 18;       /* 18×24" landscape standard */
+    background: #fff;
+    box-shadow: var(--shadow-md);
+    border: 2px solid var(--brick);
+    position:relative;
+    display:grid; place-items:center;
+    overflow:hidden;
+  }
+  .yard-sign img{max-width: 90%; max-height:90%; object-fit:contain}
+  .yard-sign .yard-text{
+    position:absolute; inset: 0;
+    display: flex; align-items:center; justify-content: center;
+    flex-direction: column; padding: 1rem;
+    pointer-events:none;
+  }
+  .yard-sign .yard-text span{
+    font-family: var(--font-display);
+    font-weight: 900;
+    color: var(--text-color, #1a2841);
+    text-align:center;
+    font-size: var(--text-size, 36px);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    white-space: pre-wrap;
+    text-shadow: 0 1px 0 rgba(255,255,255,.5);
+  }
+  .yard-stake-l, .yard-stake-r{
+    position:absolute; width: 4px; background: #4a5568;
+    bottom: -52px; height: 50px;
+  }
+  .yard-stake-l{left: 22%}
+  .yard-stake-r{left: 78%}
+
+  /* upload */
+  .upload-zone{
+    border:2px dashed var(--rule); background:var(--cream-soft);
+    padding: 1.25rem; text-align:center; cursor:pointer; transition: all .2s;
+    border-radius: var(--radius-sm);
+  }
+  .upload-zone:hover{border-color:var(--brick); background:#fff}
+  .upload-zone svg{width:32px;height:32px;margin:0 auto .35rem;fill:var(--navy)}
+  .upload-zone span{font-weight:600;color:var(--navy);display:block;font-size:.85rem}
+
+  .uploaded-preview{
+    margin-top:.6rem; padding:.5rem; border:1px solid var(--rule);
+    background:var(--cream-soft); display:flex;align-items:center;gap:.7rem;
+    border-radius: var(--radius-sm);
+  }
+  .uploaded-preview img{width:48px;height:48px;object-fit:contain;background:#fff;padding:4px;border-radius:4px}
+  .uploaded-preview .meta{flex:1; font-size:.78rem; color:var(--slate)}
+  .uploaded-preview button{color:var(--brick); padding:0 .25rem; font-size:1rem}
+
+  /* spec callout */
+  .spec-card{
+    background: var(--cream-soft); border-left: 3px solid var(--brick);
+    padding: 1rem 1.1rem; font-size:.88rem;
+  }
+  .spec-card strong{color:var(--brick);font-family:var(--font-mono);font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:.3rem}
+  .spec-card ul{margin:.4rem 0 0 1rem; line-height:1.6; color:var(--navy)}
+
+  /* price card */
+  .price-card{background:var(--navy); color:var(--cream); padding:1.4rem}
+  .price-card h3{color:var(--cream)}
+  .price-line{display:flex;justify-content:space-between;padding:.45rem 0;font-size:.88rem;
+    border-bottom:1px dashed rgba(255,255,255,.15)}
+  .price-line:last-of-type{border:none}
+  .price-line.total{
+    margin-top:.6rem;padding-top:.85rem;border-top:1px solid rgba(255,255,255,.3);border-bottom:none;
+    font-family:var(--font-display);font-weight:800;font-size:1.7rem;
+  }
+  .price-line.total .lbl{font-size:.7rem;font-family:var(--font-mono);letter-spacing:.18em;text-transform:uppercase;opacity:.7}
+
+  .checkout-form .field{margin-bottom:.7rem}
+  .checkout-form input{font-size:.85rem; padding:.55rem .7rem}
+
+  .field input[type=color]{height:42px;padding:0;cursor:pointer;width:100%;border:1px solid var(--rule);border-radius:var(--radius-sm)}
+</style>
+</head>
+<body data-page="yard">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color:var(--gold)">★ Tool 06 / Outdoor</div>
+      <h1>Custom Yard Signs</h1>
+      <p>18" × 24" corrugated plastic yard signs. Front, back, or both. Live preview as you design — bulk pricing built in. H-stakes included with every sign.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="ys-shell">
+
+      <!-- LEFT: PREVIEW + DESIGN -->
+      <div>
+        <div class="panel">
+          <h3>Preview</h3>
+          <div class="side-tabs">
+            <div class="side-tab active" data-side="front">★ Front</div>
+            <div class="side-tab" id="backTab" data-side="back">Back</div>
+          </div>
+          <div class="yard-stage">
+            <div class="yard-sign" id="yardSign">
+              <div class="yard-text" id="yardTextOverlay"><span id="yardTextSpan">FOR SALE</span></div>
+              <div class="yard-stake-l"></div>
+              <div class="yard-stake-r"></div>
+            </div>
+          </div>
+          <div class="spec-card" style="margin-top:1rem">
+            <strong>★ Sign Specifications</strong>
+            <ul>
+              <li>Standard <strong>18" × 24"</strong> corrugated plastic (4mm)</li>
+              <li>UV-resistant ink, weather-rated for 6+ months outdoor</li>
+              <li><strong>H-stakes included</strong> (one per sign)</li>
+              <li>Print one side or both — same crisp full-color result</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Design — <span id="designingLabel" style="font-family:var(--font-body);text-transform:none;letter-spacing:0;color:var(--brick)">Front Side</span></h3>
+
+          <div class="upload-zone" id="uploadZone">
+            <svg viewBox="0 0 24 24"><path d="M12 2L8 6h3v8h2V6h3l-4-4zM4 18v2h16v-2H4z"/></svg>
+            <span>Upload artwork (optional)</span>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" style="display:none">
+          <div id="uploadedDisplay"></div>
+
+          <div class="field" style="margin-top:1rem">
+            <label>Sign Text</label>
+            <textarea rows="2" id="textInput" placeholder="Write your message">FOR SALE</textarea>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Text Color</label>
+              <input type="color" id="textColor" value="#a8324a">
+            </div>
+            <div class="field">
+              <label>Text Size</label>
+              <input type="number" id="textSize" value="36" min="14" max="120">
+            </div>
+          </div>
+          <div class="field">
+            <label>Background Color</label>
+            <input type="color" id="bgColor" value="#ffffff">
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: CONFIG + PRICE -->
+      <div>
+        <div class="panel">
+          <h3>1 · Sides</h3>
+          <div class="toggle-row">
+            <button class="size-btn active" data-sides="1">Single Side</button>
+            <button class="size-btn" data-sides="2">Both Sides</button>
+          </div>
+          <p class="help" style="margin-top:.5rem">Double-sided adds a small upcharge per sign.</p>
+        </div>
+
+        <div class="panel">
+          <h3>2 · Quantity</h3>
+          <div class="field">
+            <input type="number" id="qtyInput" value="1" min="1">
+          </div>
+          <p class="help">Volume discounts at 5, 10, 25, and 50+ signs.</p>
+        </div>
+
+        <div class="panel price-card">
+          <h3>Pricing</h3>
+          <div class="price-line"><span>Sign size</span><span>18" × 24"</span></div>
+          <div class="price-line"><span>Sides</span><span id="psSides">1</span></div>
+          <div class="price-line"><span>Quantity</span><span id="psQty">1</span></div>
+          <div class="price-line"><span>Per sign</span><span id="psPer">$0</span></div>
+          <div class="price-line"><span>Tier</span><span id="psTier">Standard</span></div>
+          <div class="price-line total">
+            <span class="lbl">Total</span>
+            <span id="psTotal">$0</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Send Order</h3>
+          <form class="checkout-form" id="orderForm">
+            <div class="field"><label>Name</label><input type="text" required></div>
+            <div class="field"><label>Email</label><input type="email" required></div>
+            <div class="field"><label>Phone</label><input type="tel"></div>
+            <div class="field"><label>Notes / deadline</label><textarea rows="2"></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Send Quote Request</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* ============================================================
+     YARD SIGNS — front/back configurator
+     ============================================================ */
+
+  // PRICING (placeholder — adjust as needed)
+  const PRICE_TIERS = [
+    {min: 1,  per:24.95, label:"Standard"},
+    {min: 5,  per:19.95, label:"5+ pack"},
+    {min: 10, per:16.95, label:"10+ pack"},
+    {min: 25, per:14.50, label:"25+ pack"},
+    {min: 50, per:11.95, label:"50+ wholesale"},
+  ];
+  const DOUBLE_SIDED_UPCHARGE = 8.00; // per sign
+
+  // STATE
+  let activeSide = 'front';
+  let sides = 1;
+  let qty = 1;
+  // per-side design state
+  let design = {
+    front: {text: "FOR SALE", textColor: "#a8324a", textSize: 36, bgColor: "#ffffff", img: null, imgName: null},
+    back:  {text: "",         textColor: "#a8324a", textSize: 36, bgColor: "#ffffff", img: null, imgName: null}
+  };
+
+  // SIDE TABS
+  document.querySelectorAll('.side-tab').forEach(tab => {
+    tab.onclick = () => {
+      if(tab.classList.contains('disabled')) return;
+      activeSide = tab.dataset.side;
+      document.querySelectorAll('.side-tab').forEach(t => t.classList.toggle('active', t===tab));
+      document.getElementById('designingLabel').textContent =
+        (activeSide === 'front' ? 'Front Side' : 'Back Side');
+      // load that side's values into inputs
+      const d = design[activeSide];
+      document.getElementById('textInput').value = d.text;
+      document.getElementById('textColor').value = d.textColor;
+      document.getElementById('textSize').value  = d.textSize;
+      document.getElementById('bgColor').value   = d.bgColor;
+      renderUploadedDisplay();
+      renderPreview();
+    };
+  });
+
+  // SIDES TOGGLE
+  document.querySelectorAll('[data-sides]').forEach(btn => {
+    btn.onclick = () => {
+      sides = +btn.dataset.sides;
+      document.querySelectorAll('[data-sides]').forEach(b => b.classList.toggle('active', b===btn));
+      document.getElementById('backTab').classList.toggle('disabled', sides === 1);
+      if(sides === 1 && activeSide === 'back'){
+        document.querySelector('[data-side="front"]').click();
+      }
+      updatePricing();
+    };
+  });
+
+  // INPUTS — write into the active side's design
+  document.getElementById('textInput').oninput = e => { design[activeSide].text = e.target.value; renderPreview(); };
+  document.getElementById('textColor').oninput = e => { design[activeSide].textColor = e.target.value; renderPreview(); };
+  document.getElementById('textSize').oninput  = e => { design[activeSide].textSize = +e.target.value || 36; renderPreview(); };
+  document.getElementById('bgColor').oninput   = e => { design[activeSide].bgColor = e.target.value; renderPreview(); };
+  document.getElementById('qtyInput').oninput  = e => { qty = Math.max(1, +e.target.value || 1); updatePricing(); };
+
+  // FILE UPLOAD (per side)
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput  = document.getElementById('fileInput');
+  uploadZone.onclick = () => fileInput.click();
+  fileInput.onchange = e => {
+    if(!e.target.files[0]) return;
+    const file = e.target.files[0];
+    const r = new FileReader();
+    r.onload = ev => {
+      design[activeSide].img = ev.target.result;
+      design[activeSide].imgName = file.name;
+      renderUploadedDisplay();
+      renderPreview();
+    };
+    r.readAsDataURL(file);
+  };
+
+  function renderUploadedDisplay(){
+    const d = design[activeSide];
+    const display = document.getElementById('uploadedDisplay');
+    if(d.img){
+      display.innerHTML = `
+        <div class="uploaded-preview">
+          <img src="${d.img}" alt="">
+          <div class="meta">${d.imgName}</div>
+          <button type="button" id="rmImg">✕</button>
+        </div>
+      `;
+      document.getElementById('rmImg').onclick = () => {
+        design[activeSide].img = null;
+        design[activeSide].imgName = null;
+        fileInput.value = '';
+        renderUploadedDisplay();
+        renderPreview();
+      };
+    } else {
+      display.innerHTML = '';
+    }
+  }
+
+  // PREVIEW (always shows the active side)
+  function renderPreview(){
+    const d = design[activeSide];
+    const sign = document.getElementById('yardSign');
+    sign.style.background = d.bgColor;
+    // image
+    let imgEl = sign.querySelector('img');
+    if(d.img){
+      if(!imgEl){
+        imgEl = document.createElement('img');
+        sign.insertBefore(imgEl, sign.firstChild);
+      }
+      imgEl.src = d.img;
+    } else if(imgEl){
+      imgEl.remove();
+    }
+    // text
+    const span = document.getElementById('yardTextSpan');
+    span.textContent = d.text || '';
+    span.style.setProperty('--text-color', d.textColor);
+    span.style.setProperty('--text-size', d.textSize + 'px');
+    // hide overlay if neither image nor text
+    document.getElementById('yardTextOverlay').style.display = (d.text || d.img) ? 'flex' : 'none';
+  }
+
+  // PRICING
+  function calc(){
+    let tier = PRICE_TIERS[0];
+    PRICE_TIERS.forEach(t => { if(qty >= t.min) tier = t; });
+    const baseEach = tier.per;
+    const upcharge = sides === 2 ? DOUBLE_SIDED_UPCHARGE : 0;
+    const perSign = baseEach + upcharge;
+    const total = perSign * qty;
+    return {tier, baseEach, upcharge, perSign, total};
+  }
+
+  function updatePricing(){
+    const {tier, perSign, total} = calc();
+    document.getElementById('psSides').textContent = sides === 1 ? '1 side' : '2 sides';
+    document.getElementById('psQty').textContent   = qty;
+    document.getElementById('psPer').textContent   = '$' + perSign.toFixed(2);
+    document.getElementById('psTier').textContent  = tier.label;
+    document.getElementById('psTotal').textContent = '$' + total.toFixed(2);
+  }
+
+  // ORDER SUBMIT
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const {total, tier} = calc();
+    const sideDesc = side => {
+      const d = design[side];
+      const parts = [];
+      if(d.text) parts.push(`text: "${d.text}"`);
+      if(d.img)  parts.push(`image: "${d.imgName}"`);
+      parts.push(`bg: ${d.bgColor}`);
+      return parts.join(' · ');
+    };
+    const sidesDescription = sides === 1
+      ? `Front only — ${sideDesc('front')}`
+      : `Front — ${sideDesc('front')}\nBack  — ${sideDesc('back')}`;
+    const body = encodeURIComponent(
+`Hi Patriot Printing,
+
+I'd like to order yard signs:
+
+Size: 18" × 24" corrugated plastic (H-stakes included)
+Sides: ${sides === 1 ? 'Single' : 'Double'}-sided
+Quantity: ${qty}
+Tier: ${tier.label}
+Estimated total: $${total.toFixed(2)}
+
+Design:
+${sidesDescription}
+
+Notes: ${f.elements[3].value || '—'}
+
+Name:  ${f.elements[0].value}
+Email: ${f.elements[1].value}
+Phone: ${f.elements[2].value || '—'}
+
+I'll send the artwork file in reply. Thanks!`);
+    window.location.href = `mailto:patriotprintingllc@gmail.com?subject=Yard Sign Order&body=${body}`;
+  });
+
+  // INIT
+  renderPreview();
+  updatePricing();
+  </script>
+</body>
+</html>

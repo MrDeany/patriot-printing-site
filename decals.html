@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vinyl Decals & Custom Signage · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  .dc-shell{display:grid; grid-template-columns: 1fr 420px; gap:1.5rem; margin-top:1.5rem; align-items:start}
+  @media (max-width:900px){.dc-shell{grid-template-columns:1fr}}
+
+  .panel{background:#fff;border:1px solid var(--rule); padding:1.4rem}
+  .panel + .panel{margin-top:1rem}
+  .panel h3{
+    font-family:var(--font-mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--navy); margin-bottom:.85rem; font-weight:600;
+  }
+
+  /* material card grid */
+  .mat-grid{display:grid; grid-template-columns:repeat(2, 1fr); gap:.7rem}
+  @media (max-width:600px){.mat-grid{grid-template-columns:1fr}}
+  .mat-card{
+    border: 1.5px solid var(--rule);
+    padding: 1rem;
+    cursor:pointer;
+    background:#fff;
+    transition: all .15s;
+    border-radius: var(--radius-sm);
+    position:relative;
+  }
+  .mat-card:hover{border-color:var(--navy); transform: translateY(-1px)}
+  .mat-card.active{border-color:var(--brick); background: var(--cream-soft)}
+  .mat-card.active::after{
+    content:"✓"; position:absolute; top:.6rem; right:.7rem;
+    width:22px; height:22px; background: var(--brick); color: var(--cream);
+    border-radius:50%; display:grid; place-items:center; font-size:.85rem; font-weight:700;
+  }
+  .mat-card h4{
+    font-family: var(--font-display);
+    font-weight:700; font-size:1.1rem; color: var(--navy);
+    margin-bottom:.3rem; letter-spacing:-.01em;
+  }
+  .mat-card p{font-size:.82rem; color: var(--slate); line-height:1.5}
+  .mat-card .tag{
+    display:inline-block; margin-top:.5rem;
+    font-family: var(--font-mono); font-size:.65rem; letter-spacing:.12em;
+    text-transform:uppercase; color: var(--brick);
+  }
+
+  /* finish toggle */
+  .finish-row{display:flex; gap:.5rem}
+  .finish-row .size-btn{flex:1; padding:.7rem}
+
+  /* visual preview */
+  .preview-wrap{
+    background:
+      repeating-linear-gradient(45deg, #f5f1e8, #f5f1e8 10px, #ebe5d4 10px, #ebe5d4 11px);
+    padding: 2rem; min-height: 280px;
+    display:grid; place-items:center;
+    border:1px dashed var(--rule);
+  }
+  .decal-mock{
+    background:#1a2841;
+    color:#f5f1e8;
+    padding: 2rem 3rem;
+    border: 2px solid var(--brick);
+    box-shadow: var(--shadow-md);
+    text-align:center;
+    position:relative;
+    transition: all .25s;
+  }
+  .decal-mock.gloss{
+    background: linear-gradient(135deg, #1a2841 0%, #2a3a5a 50%, #1a2841 100%);
+  }
+  .decal-mock.gloss::before{
+    content:""; position:absolute; top:0; left:-50%; width:50%; height:100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.15), transparent);
+  }
+  .decal-mock.matte{
+    filter: contrast(.95);
+  }
+  .decal-mock.perf{
+    background-image:
+      radial-gradient(circle at 8px 8px, rgba(245,241,232,.4) 1.5px, transparent 1.5px);
+    background-size: 12px 12px;
+  }
+  .decal-mock.backlit{
+    background: var(--navy);
+    box-shadow: 0 0 32px var(--gold), var(--shadow-md);
+  }
+  .decal-mock.rollup{
+    background: #f5f1e8; color: #1a2841;
+    padding: 2rem 1.5rem;
+    width: 220px;
+  }
+  .decal-mock.rollup::after{
+    content:""; position:absolute; bottom:-12px; left:-8px; right:-8px;
+    height: 16px; background: #1a2841; border-radius: 4px;
+  }
+  .decal-mock h2{
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 2rem;
+    letter-spacing: -.01em;
+    line-height: 1;
+    margin-bottom:.4rem;
+  }
+  .decal-mock .sub{
+    font-family: var(--font-mono);
+    font-size:.7rem; letter-spacing:.2em; text-transform:uppercase;
+    color: var(--gold);
+  }
+
+  /* upload */
+  .upload-zone{
+    border:2px dashed var(--rule); background:var(--cream-soft);
+    padding: 1.5rem; text-align:center; cursor:pointer; transition: all .2s;
+    border-radius: var(--radius-sm);
+  }
+  .upload-zone:hover{border-color:var(--brick); background:#fff}
+  .upload-zone svg{width:36px;height:36px;margin:0 auto .5rem;fill:var(--navy)}
+  .upload-zone span{font-weight:600;color:var(--navy);display:block}
+  .upload-zone small{display:block;font-size:.75rem;color:var(--slate);margin-top:.25rem}
+
+  .file-chip{
+    margin-top:.6rem; padding:.5rem .75rem; background:var(--cream-soft);
+    border:1px solid var(--rule); display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--font-mono); font-size:.78rem; color: var(--navy);
+    border-radius: var(--radius-sm);
+  }
+  .file-chip button{color:var(--brick); font-size:1rem; padding:0 .25rem}
+
+  /* quote summary */
+  .quote-card{background:var(--navy); color:var(--cream); padding:1.4rem}
+  .quote-card h3{color:var(--cream)}
+  .qline{display:flex;justify-content:space-between;padding:.5rem 0;font-size:.88rem;
+    border-bottom:1px dashed rgba(255,255,255,.15)}
+  .qline:last-of-type{border:none}
+  .qline strong{color: var(--gold); font-family:var(--font-mono); font-size:.78rem; letter-spacing:.05em}
+
+  .checkout-form .field{margin-bottom:.85rem}
+  .checkout-form input{font-size:.9rem; padding:.65rem .8rem}
+
+  .info-strip{
+    background: var(--cream-soft); border-left: 3px solid var(--brick);
+    padding: .85rem 1rem; font-size: .85rem; color: var(--navy);
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body data-page="decals">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color:var(--gold)">★ Tool 05 / Quote</div>
+      <h1>Vinyl Decals & Custom Signage</h1>
+      <p>Window decals, vehicle graphics, perf film, backlit signage, roll-up banners. Every job is sized differently — tell us what you need and we'll send a quote within hours.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="dc-shell">
+
+      <!-- LEFT: SPEC FORM -->
+      <div>
+        <div class="panel">
+          <h3>1 · Material</h3>
+          <div class="mat-grid" id="matGrid">
+            <div class="mat-card active" data-mat="vinyl">
+              <h4>Standard Vinyl</h4>
+              <p>Solid die-cut vinyl. Indoor or outdoor. Walls, windows, vehicles, equipment, helmets.</p>
+              <span class="tag">Most popular</span>
+            </div>
+            <div class="mat-card" data-mat="perf">
+              <h4>Perforated Film</h4>
+              <p>One-way see-through vinyl for storefront windows and vehicle rear windshields. View out, branding in.</p>
+              <span class="tag">Window graphics</span>
+            </div>
+            <div class="mat-card" data-mat="backlit">
+              <h4>Backlit Vinyl</h4>
+              <p>Translucent vinyl built for lightboxes and illuminated signs. Sharp print, even glow.</p>
+              <span class="tag">Lightboxes</span>
+            </div>
+            <div class="mat-card" data-mat="rollup">
+              <h4>Roll-Up Banner</h4>
+              <p>Retractable trade-show stands. Includes hardware base + carry bag. 33", 36", or custom widths.</p>
+              <span class="tag">Trade shows</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>2 · Finish</h3>
+          <div class="finish-row">
+            <button class="size-btn active" data-finish="matte">Matte</button>
+            <button class="size-btn" data-finish="gloss">Gloss</button>
+          </div>
+          <p class="help" style="margin-top:.5rem">Matte = no glare, premium look. Gloss = vivid colors, easier to clean.</p>
+        </div>
+
+        <div class="panel">
+          <h3>3 · Live Preview</h3>
+          <div class="preview-wrap">
+            <div class="decal-mock matte" id="decalMock">
+              <h2>YOUR LOGO</h2>
+              <div class="sub">★ ESTABLISHED 2026 ★</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>4 · Artwork</h3>
+          <div class="upload-zone" id="uploadZone">
+            <svg viewBox="0 0 24 24"><path d="M12 2L8 6h3v8h2V6h3l-4-4zM4 18v2h16v-2H4z"/></svg>
+            <span>Upload your design (optional)</span>
+            <small>Vector files preferred (.ai, .eps, .pdf, .svg) · Or send by email later</small>
+          </div>
+          <input type="file" id="fileInput" accept="image/*,.pdf,.ai,.eps" style="display:none">
+          <div id="fileChip"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: SIZE / QTY / CONTACT -->
+      <div>
+        <div class="panel">
+          <h3>5 · Dimensions</h3>
+          <div class="info-strip">
+            We cut to your exact size. Most decals run 4"-48" wide. Let us know what you need.
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label>Width (inches)</label>
+              <input type="number" id="widthIn" value="12" min="0.5" step="0.5">
+            </div>
+            <div class="field">
+              <label>Height (inches)</label>
+              <input type="number" id="heightIn" value="6" min="0.5" step="0.5" placeholder="(or proportional)">
+            </div>
+          </div>
+          <p class="help">Leave height blank if you want us to scale proportionally to your art.</p>
+        </div>
+
+        <div class="panel">
+          <h3>6 · Quantity</h3>
+          <div class="field">
+            <input type="number" id="qtyInput" value="1" min="1">
+          </div>
+          <p class="help">Bulk quotes always come back lower per piece. Tell us if this is a recurring order.</p>
+        </div>
+
+        <div class="panel quote-card">
+          <h3>Your Spec Sheet</h3>
+          <div class="qline"><span><strong>Material</strong></span><span id="qsMat">Standard Vinyl</span></div>
+          <div class="qline"><span><strong>Finish</strong></span><span id="qsFin">Matte</span></div>
+          <div class="qline"><span><strong>Size</strong></span><span id="qsSize">12" × 6"</span></div>
+          <div class="qline"><span><strong>Quantity</strong></span><span id="qsQty">1</span></div>
+        </div>
+
+        <div class="panel">
+          <h3>7 · Your Contact</h3>
+          <p class="help" style="margin-bottom:.7rem">We'll send a custom quote within hours. Phone is required for time-sensitive jobs.</p>
+          <form class="checkout-form" id="orderForm">
+            <div class="field"><label>Name</label><input type="text" required></div>
+            <div class="field"><label>Email</label><input type="email" required></div>
+            <div class="field"><label>Phone</label><input type="tel" required></div>
+            <div class="field"><label>Project notes / deadline</label><textarea rows="3" placeholder="Where is this going? Any deadlines? Mounting questions?"></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Request Quote</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* ============================================================
+     VINYL DECALS — quote request configurator
+     ============================================================ */
+  const MAT_NAMES = {
+    vinyl:  "Standard Vinyl",
+    perf:   "Perforated Film",
+    backlit:"Backlit Vinyl",
+    rollup: "Roll-Up Banner"
+  };
+
+  // STATE
+  let material = 'vinyl';
+  let finish   = 'matte';
+  let widthIn  = 12;
+  let heightIn = 6;
+  let qty      = 1;
+  let fileName = null;
+
+  // MATERIAL CARDS
+  document.querySelectorAll('.mat-card').forEach(card => {
+    card.onclick = () => {
+      material = card.dataset.mat;
+      document.querySelectorAll('.mat-card').forEach(c => c.classList.toggle('active', c===card));
+      updateUI();
+    };
+  });
+  // FINISH
+  document.querySelectorAll('[data-finish]').forEach(btn => {
+    btn.onclick = () => {
+      finish = btn.dataset.finish;
+      document.querySelectorAll('[data-finish]').forEach(b => b.classList.toggle('active', b===btn));
+      updateUI();
+    };
+  });
+
+  // INPUTS
+  document.getElementById('widthIn').oninput  = e => { widthIn  = parseFloat(e.target.value)||0; updateUI(); };
+  document.getElementById('heightIn').oninput = e => { heightIn = parseFloat(e.target.value)||0; updateUI(); };
+  document.getElementById('qtyInput').oninput = e => { qty = Math.max(1, +e.target.value || 1); updateUI(); };
+
+  // FILE
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput  = document.getElementById('fileInput');
+  uploadZone.onclick = () => fileInput.click();
+  fileInput.onchange = e => {
+    if(!e.target.files[0]) return;
+    fileName = e.target.files[0].name;
+    document.getElementById('fileChip').innerHTML =
+      `<div class="file-chip"><span>📎 ${fileName}</span><button type="button" id="rmFile">✕</button></div>`;
+    document.getElementById('rmFile').onclick = () => {
+      fileName = null;
+      document.getElementById('fileChip').innerHTML = '';
+      fileInput.value = '';
+    };
+  };
+
+  function updateUI(){
+    // mock styling
+    const mock = document.getElementById('decalMock');
+    mock.className = 'decal-mock ' + finish + ' ' + material;
+    // sizing visual cue
+    const aspect = heightIn > 0 ? (heightIn / Math.max(widthIn, 0.1)) : 0.5;
+    mock.style.aspectRatio = `${widthIn} / ${Math.max(heightIn || widthIn * 0.5, 1)}`;
+    mock.style.width = Math.min(360, widthIn * 22) + 'px';
+
+    // spec card
+    document.getElementById('qsMat').textContent  = MAT_NAMES[material];
+    document.getElementById('qsFin').textContent  = finish.charAt(0).toUpperCase() + finish.slice(1);
+    document.getElementById('qsSize').textContent = heightIn > 0
+      ? `${widthIn}" × ${heightIn}"`
+      : `${widthIn}" wide (proportional)`;
+    document.getElementById('qsQty').textContent  = qty;
+  }
+
+  // SUBMIT
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const sizeStr = heightIn > 0 ? `${widthIn}" × ${heightIn}"` : `${widthIn}" wide (proportional to art)`;
+    const body = encodeURIComponent(
+`Hi Patriot Printing,
+
+I'd like a quote for vinyl decals / signage:
+
+Material: ${MAT_NAMES[material]}
+Finish:   ${finish.charAt(0).toUpperCase() + finish.slice(1)}
+Size:     ${sizeStr}
+Quantity: ${qty}
+Artwork:  ${fileName ? `Uploaded — "${fileName}" (will send file in reply)` : 'Will send by email'}
+
+Project notes:
+${f.elements[3].value || '—'}
+
+Name:  ${f.elements[0].value}
+Email: ${f.elements[1].value}
+Phone: ${f.elements[2].value}
+
+Please send a quote when you have a chance. Thanks!`);
+    window.location.href = `mailto:patriotprintingllc@gmail.com?subject=Vinyl Decal Quote Request&body=${body}`;
+  });
+
+  updateUI();
+  </script>
+</body>
+</html>

@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DTF Gang Sheet Builder · Patriot Printing</title>
+<link rel="stylesheet" href="../css/global.css">
+<style>
+  /* ===== GANG SHEET BUILDER ===== */
+  .builder-shell{display:grid; grid-template-columns: 280px 1fr 300px; gap: 1.25rem; margin-top: 1.5rem; align-items:start}
+  @media (max-width: 1200px){.builder-shell{grid-template-columns: 260px 1fr; }
+    .builder-right{grid-column: 1 / -1}
+  }
+  @media (max-width: 800px){.builder-shell{grid-template-columns:1fr}}
+
+  .panel{
+    background:#fff; border:1px solid var(--rule); padding: 1.1rem;
+  }
+  .panel + .panel{margin-top:1rem}
+  .panel h3{
+    font-family: var(--font-mono);
+    font-size:.7rem; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--navy); margin-bottom:.75rem; font-weight:600;
+    display:flex;justify-content:space-between;align-items:center;
+  }
+
+  /* canvas area */
+  .canvas-wrap{
+    background:#fff; border:1px solid var(--rule); padding:1rem; min-height: 600px;
+    display:flex; flex-direction:column;
+  }
+  .canvas-toolbar{
+    display:flex; gap:.5rem; flex-wrap:wrap; padding-bottom:.85rem; margin-bottom:.85rem;
+    border-bottom: 1px solid var(--rule); align-items:center;
+  }
+  .tool-btn{
+    padding:.45rem .7rem; border:1px solid var(--rule); background:#fff;
+    font-size:.78rem; color:var(--navy); border-radius: var(--radius-sm);
+    display:inline-flex; align-items:center; gap:.4rem; transition: all .15s;
+  }
+  .tool-btn:hover:not(:disabled){border-color:var(--navy); background:var(--cream-soft)}
+  .tool-btn:disabled{opacity:.4;cursor:not-allowed}
+  .tool-btn.danger{color:var(--brick); border-color:var(--brick)}
+  .tool-btn.danger:hover:not(:disabled){background:var(--brick); color:#fff}
+  .canvas-stats{margin-left:auto; font-family: var(--font-mono); font-size:.72rem; color:var(--slate); letter-spacing:.05em}
+
+  .scroll-area{
+    flex:1; overflow:auto; background:
+      repeating-linear-gradient(45deg, #f5f1e8, #f5f1e8 10px, #ebe5d4 10px, #ebe5d4 11px);
+    padding: 2rem; min-height: 500px;
+    border: 1px dashed var(--rule);
+  }
+  .sheet{
+    position: relative; background:#fff;
+    margin: 0 auto;
+    border: 2px solid var(--brick);
+    box-shadow: var(--shadow-md);
+    background-image:
+      linear-gradient(to right, rgba(26,40,65,.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(26,40,65,.05) 1px, transparent 1px);
+    /* grid: 1 inch = 20px on screen at scale 1 */
+  }
+  .sheet-label{
+    position:absolute; top:-26px; left:0; right:0;
+    font-family: var(--font-mono); font-size:.7rem; letter-spacing:.15em;
+    color:var(--navy); text-transform:uppercase;
+    display:flex; justify-content:space-between;
+  }
+  .sheet-label-bottom{top:auto; bottom:-26px}
+
+  .item{
+    position:absolute; cursor:move;
+    border: 1.5px dashed transparent;
+    user-select:none; touch-action:none;
+    transition: border-color .12s;
+  }
+  .item img{width:100%;height:100%;display:block;pointer-events:none}
+  .item:hover{border-color: rgba(26,40,65,.3)}
+  .item.selected{border-color: var(--brick); border-style:solid}
+  .item .handle{
+    position:absolute; width:10px;height:10px; background:var(--brick); border:1.5px solid #fff;
+    bottom:-6px; right:-6px; cursor: nwse-resize;
+    display:none;
+  }
+  .item.selected .handle{display:block}
+  .item .badge{
+    position:absolute; top:-22px; left:0; background:var(--brick); color:#fff;
+    font-family:var(--font-mono); font-size:.65rem; padding:2px 6px; letter-spacing:.05em;
+    white-space:nowrap; opacity:0; transition: opacity .15s;
+  }
+  .item.selected .badge, .item:hover .badge{opacity:1}
+
+  /* upload zone */
+  .upload-zone{
+    border: 2px dashed var(--rule);
+    background: var(--cream-soft);
+    padding: 1.25rem; text-align:center; cursor:pointer;
+    transition: all .2s; border-radius: var(--radius-sm);
+  }
+  .upload-zone:hover, .upload-zone.dragover{border-color:var(--brick); background:#fff}
+  .upload-zone svg{width:32px;height:32px;margin:0 auto .5rem; fill:var(--navy)}
+  .upload-zone span{font-size:.85rem; color:var(--navy); font-weight:600}
+  .upload-zone small{display:block;font-size:.72rem;color:var(--slate);margin-top:.25rem}
+
+  /* image library */
+  .lib-grid{display:grid; grid-template-columns: repeat(3,1fr); gap:.45rem}
+  .lib-item{
+    aspect-ratio: 1; background: var(--cream-soft); border:1px solid var(--rule);
+    display:grid;place-items:center; cursor:pointer; transition: all .15s;
+    border-radius: var(--radius-sm); padding:.4rem;
+  }
+  .lib-item:hover{border-color:var(--navy); transform: scale(1.05)}
+  .lib-item svg{width:100%;height:100%}
+
+  /* selected item editor */
+  .item-edit-row{display:grid; grid-template-columns:1fr 1fr; gap:.5rem; margin-bottom:.5rem}
+  .item-edit-row label{
+    font-family: var(--font-mono); font-size:.62rem; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--slate); display:block; margin-bottom:.2rem;
+  }
+  .item-edit-row input{
+    width:100%; padding:.4rem .5rem; border:1px solid var(--rule);
+    border-radius: var(--radius-sm); font-size:.85rem; font-family:var(--font-mono);
+  }
+
+  /* color filter swatches */
+  .color-row{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+  .color-swatch{
+    width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid #fff;
+    box-shadow: 0 0 0 1px var(--rule);
+    transition: transform .12s;
+  }
+  .color-swatch:hover{transform:scale(1.15)}
+  .color-swatch.active{box-shadow: 0 0 0 2px var(--brick)}
+
+  /* multiply controls */
+  .mult-row{display:flex; gap:.4rem; align-items:center; margin-top:.5rem}
+  .mult-row input{
+    flex:1; padding:.4rem; border:1px solid var(--rule); border-radius:var(--radius-sm);
+    font-family: var(--font-mono); font-size:.85rem; text-align:center;
+  }
+
+  /* size picker for sheet length */
+  .length-picker{display:grid; grid-template-columns:repeat(4,1fr); gap:.3rem}
+  .length-picker .size-btn{padding:.4rem; font-size:.72rem}
+
+  /* price summary */
+  .price-summary{
+    background: var(--navy); color: var(--cream); padding: 1.25rem;
+  }
+  .price-summary h3{color:var(--cream); border-color: rgba(255,255,255,.15)}
+  .price-line{
+    display:flex; justify-content:space-between; padding:.4rem 0;
+    font-size:.85rem; border-bottom: 1px dashed rgba(255,255,255,.15);
+  }
+  .price-line:last-child{border:none}
+  .price-line.total{
+    margin-top:.5rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.3);border-bottom:none;
+    font-family: var(--font-display); font-weight:800; font-size:1.6rem;
+  }
+  .price-line.total .lbl{font-size:.7rem; font-family: var(--font-mono); letter-spacing:.18em; text-transform:uppercase; opacity:.7}
+
+  .tier-bar{
+    margin-top:.75rem;
+    background: rgba(255,255,255,.08);
+    height:6px; border-radius:99px; overflow:hidden;
+  }
+  .tier-bar > div{height:100%; background: var(--brick); transition: width .3s}
+  .tier-meta{
+    font-family:var(--font-mono); font-size:.65rem; letter-spacing:.12em; text-transform:uppercase;
+    opacity:.8; margin-top:.4rem; display:flex; justify-content:space-between;
+  }
+
+  /* checkout form */
+  .checkout-form .field{margin-bottom:.7rem}
+  .checkout-form input{font-size:.85rem; padding:.55rem .7rem}
+
+  /* tiny colored shapes for placeholder lib */
+  .swatch-bg-1{background: linear-gradient(135deg,#a8324a,#7e2235)}
+  .swatch-bg-2{background: linear-gradient(135deg,#1a2841,#2a3a5a)}
+  .swatch-bg-3{background: linear-gradient(135deg,#c89b3c,#a8842c)}
+  .swatch-bg-4{background: linear-gradient(135deg,#4a7c59,#2d4a37)}
+</style>
+</head>
+<body data-page="gang">
+  <div id="site-header"></div>
+
+  <header class="tool-header">
+    <div class="wrap">
+      <div class="eyebrow" style="color: var(--gold)">★ Tool 01 / DTF</div>
+      <h1>Gang Sheet Builder</h1>
+      <p>23" wide DTF transfer sheets. Upload your art, scale to exact inches, snap and align, copy and multiply. The sheet grows as you add — and the price updates in real time.</p>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="builder-shell">
+
+      <!-- LEFT PANEL -->
+      <div class="builder-left">
+        <div class="panel">
+          <h3>Sheet Length</h3>
+          <div class="length-picker" id="lengthPicker">
+            <!-- populated via JS -->
+          </div>
+          <p class="help" id="lengthHelp">Sheet auto-extends to fit your art. Override here if needed.</p>
+        </div>
+
+        <div class="panel">
+          <h3>Add Artwork</h3>
+          <div class="upload-zone" id="uploadZone">
+            <svg viewBox="0 0 24 24"><path d="M12 2L8 6h3v8h2V6h3l-4-4zM4 18v2h16v-2H4z"/></svg>
+            <span>Drop image or click to upload</span>
+            <small>PNG, JPG, SVG · Up to 50MB</small>
+            <input type="file" id="fileInput" accept="image/*" multiple style="display:none">
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Image Library</h3>
+          <div class="lib-grid" id="libGrid">
+            <!-- starter library -->
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER CANVAS -->
+      <div class="canvas-wrap">
+        <div class="canvas-toolbar">
+          <button class="tool-btn" id="duplicateBtn" disabled>⧉ Duplicate</button>
+          <button class="tool-btn" id="multiplyBtn" disabled>×N Multiply</button>
+          <button class="tool-btn danger" id="deleteBtn" disabled>✕ Delete</button>
+          <button class="tool-btn" id="centerBtn" disabled>Center H</button>
+          <button class="tool-btn" id="snapToggle" data-on="true">⊞ Snap: ON</button>
+          <div class="canvas-stats" id="canvasStats">0 items · 0 sq in used</div>
+        </div>
+        <div class="scroll-area" id="scrollArea">
+          <div class="sheet" id="sheet">
+            <div class="sheet-label">
+              <span>← 22" PRINTABLE WIDTH →</span>
+              <span id="sheetLengthLabel">2 ft</span>
+            </div>
+            <div class="sheet-label sheet-label-bottom">
+              <span>★ Patriot Printing — DTF Transfer Gang Sheet ★</span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL -->
+      <div class="builder-right">
+        <div class="panel" id="itemEditor" style="display:none">
+          <h3>Selected Item <span id="itemEditorName" style="font-family: var(--font-body); text-transform:none; letter-spacing:0; font-size:.78rem; opacity:.6; font-weight:400">—</span></h3>
+
+          <label style="font-family: var(--font-mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--navy); display:block; margin-bottom:.3rem">Size (inches)</label>
+          <div class="item-edit-row">
+            <div>
+              <label>Width</label>
+              <input type="number" id="editW" step="0.1" min="0.5">
+            </div>
+            <div>
+              <label>Height</label>
+              <input type="number" id="editH" step="0.1" min="0.5">
+            </div>
+          </div>
+
+          <label style="font-family: var(--font-mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--navy); display:block; margin-bottom:.3rem; margin-top:.5rem">Color Filter</label>
+          <div class="color-row" id="colorRow">
+            <div class="color-swatch active" data-filter="none" style="background: linear-gradient(45deg,#fff 0%,#fff 50%,#a8324a 50%,#1a2841 100%)" title="Original"></div>
+            <div class="color-swatch" data-filter="invert" style="background:#1a2841" title="Invert / black-out"></div>
+            <div class="color-swatch" data-filter="hue-90"  style="background:#4a7c59" title="Green shift"></div>
+            <div class="color-swatch" data-filter="hue-180" style="background:#c89b3c" title="Gold shift"></div>
+            <div class="color-swatch" data-filter="hue-270" style="background:#a8324a" title="Red shift"></div>
+            <div class="color-swatch" data-filter="grayscale" style="background:#888" title="Grayscale"></div>
+            <div class="color-swatch" data-filter="white" style="background:#f5f1e8" title="White-out"></div>
+          </div>
+
+          <label style="font-family: var(--font-mono); font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--navy); display:block; margin-bottom:.3rem; margin-top:.75rem">Multiply</label>
+          <div class="mult-row">
+            <input type="number" id="multCount" min="2" max="50" value="4">
+            <button class="tool-btn" id="multGoBtn">Make copies →</button>
+          </div>
+          <p class="help">Auto-arranges copies in a grid below the original, snapping to columns.</p>
+        </div>
+
+        <div class="panel price-summary">
+          <h3>Live Pricing</h3>
+          <div class="price-line">
+            <span>Sheet size</span>
+            <span id="psSize">22" × 24"</span>
+          </div>
+          <div class="price-line">
+            <span>Items</span>
+            <span id="psItems">0</span>
+          </div>
+          <div class="price-line">
+            <span>Linear feet</span>
+            <span id="psFeet">2.0 ft</span>
+          </div>
+          <div class="price-line">
+            <span>Rate</span>
+            <span id="psRate">$6.50/ft</span>
+          </div>
+          <div class="price-line total">
+            <span class="lbl">Estimated</span>
+            <span id="psTotal">$13.00</span>
+          </div>
+          <div class="tier-bar"><div id="tierFill" style="width:10%"></div></div>
+          <div class="tier-meta">
+            <span id="tierLabel">Standard rate</span>
+            <span id="tierNext">→ 5ft for 8% off</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>Send to Shop</h3>
+          <p class="help" style="margin-bottom:.7rem">We'll review your sheet and confirm pricing/turnaround within hours. Print-ready files preferred (300dpi PNG, transparent bg).</p>
+          <form class="checkout-form" id="orderForm">
+            <div class="field"><label>Name</label><input type="text" required></div>
+            <div class="field"><label>Email</label><input type="email" required placeholder="you@example.com"></div>
+            <div class="field"><label>Phone (optional)</label><input type="tel"></div>
+            <div class="field"><label>Notes</label><textarea rows="2" placeholder="Special instructions, deadlines, etc."></textarea></div>
+            <button type="submit" class="btn btn-primary btn-block">Send Quote Request</button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="../js/site.js"></script>
+  <script>
+  /* =========================================================
+     GANG SHEET BUILDER LOGIC
+     ========================================================= */
+
+  // PRICING (placeholder rates — you can adjust these)
+  // base $6.50 per linear foot of 22" sheet with volume discount tiers
+  const SHEET_WIDTH_IN = 22;          // printable width in inches
+  const PX_PER_IN      = 16;          // canvas zoom: 16px = 1 inch
+  const SNAP_IN        = 0.25;        // snap grid (¼ inch)
+
+  const LENGTHS_FT = [1,2,3,4,5,6,8,10,12,18,24];
+  const TIERS = [
+    {minFt:0,  rate:7.50, label:"Standard"},
+    {minFt:3,  rate:6.50, label:"3ft+ tier"},
+    {minFt:5,  rate:5.75, label:"5ft+ tier"},
+    {minFt:10, rate:5.00, label:"10ft+ bulk"},
+    {minFt:18, rate:4.25, label:"18ft+ wholesale"},
+  ];
+
+  // STATE
+  let items = [];
+  let selectedId = null;
+  let sheetLenFt = 2;     // current chosen length in feet
+  let autoExtended = false;
+  let snapping = true;
+  let dragInfo = null;
+  let resizeInfo = null;
+  let nextId = 1;
+
+  const sheet = document.getElementById('sheet');
+  const scrollArea = document.getElementById('scrollArea');
+  const lengthPicker = document.getElementById('lengthPicker');
+  const itemEditor = document.getElementById('itemEditor');
+
+  // BUILD LENGTH PICKER
+  LENGTHS_FT.forEach(ft => {
+    const b = document.createElement('button');
+    b.className = 'size-btn' + (ft===2?' active':'');
+    b.textContent = ft + "'";
+    b.dataset.ft = ft;
+    b.onclick = () => { setSheetLength(ft, true); };
+    lengthPicker.appendChild(b);
+  });
+
+  function setSheetLength(ft, manual=false){
+    sheetLenFt = ft;
+    if(manual) autoExtended = false;
+    [...lengthPicker.children].forEach(b => b.classList.toggle('active', +b.dataset.ft === ft));
+    renderSheet();
+  }
+
+  function renderSheet(){
+    const widthPx = SHEET_WIDTH_IN * PX_PER_IN;
+    const lengthPx = sheetLenFt * 12 * PX_PER_IN;
+    sheet.style.width  = widthPx + 'px';
+    sheet.style.height = lengthPx + 'px';
+    sheet.style.backgroundSize = `${PX_PER_IN}px ${PX_PER_IN}px`;
+    document.getElementById('sheetLengthLabel').textContent = sheetLenFt + ' ft';
+    updatePrice();
+  }
+
+  /* ---------- IMAGE LIBRARY (placeholder SVG art) ---------- */
+  const LIBRARY = [
+    {id:'lib1', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,8 62,38 95,40 68,60 78,92 50,75 22,92 32,60 5,40 38,38" fill="#a8324a" stroke="#1a2841" stroke-width="3"/></svg>`, name:'Star'},
+    {id:'lib2', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="40" fill="#1a2841"/><text x="50" y="58" text-anchor="middle" font-family="serif" font-weight="900" font-size="22" fill="#f5f1e8">USA</text></svg>`, name:'USA Badge'},
+    {id:'lib3', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M50 90 L20 50 L20 30 L40 20 L50 30 L60 20 L80 30 L80 50 Z" fill="#a8324a" stroke="#1a2841" stroke-width="2"/></svg>`, name:'Shield'},
+    {id:'lib4', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="45" fill="#f5f1e8" stroke="#1a2841" stroke-width="3"/><text x="50" y="42" text-anchor="middle" font-family="serif" font-weight="800" font-size="13" fill="#1a2841">EST.</text><text x="50" y="62" text-anchor="middle" font-family="serif" font-weight="900" font-size="22" fill="#a8324a">★★★</text><text x="50" y="80" text-anchor="middle" font-family="monospace" font-size="9" fill="#1a2841">PATRIOT</text></svg>`, name:'Crest'},
+    {id:'lib5', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect x="10" y="20" width="80" height="60" fill="#1a2841"/><rect x="10" y="20" width="32" height="32" fill="#a8324a"/><line x1="42" y1="35" x2="90" y2="35" stroke="#f5f1e8" stroke-width="3"/><line x1="42" y1="50" x2="90" y2="50" stroke="#f5f1e8" stroke-width="3"/><line x1="10" y1="65" x2="90" y2="65" stroke="#f5f1e8" stroke-width="3"/></svg>`, name:'Flag'},
+    {id:'lib6', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,15 85,85 15,85" fill="#c89b3c" stroke="#1a2841" stroke-width="3"/><circle cx="50" cy="55" r="10" fill="#1a2841"/></svg>`, name:'Triangle Mark'},
+    {id:'lib7', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="60" text-anchor="middle" font-family="serif" font-weight="900" font-size="36" fill="#a8324a" font-style="italic">Sale</text></svg>`, name:'Sale'},
+    {id:'lib8', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><text x="50" y="42" text-anchor="middle" font-family="monospace" font-weight="700" font-size="14" fill="#1a2841">SCOTT</text><text x="50" y="62" text-anchor="middle" font-family="serif" font-weight="900" font-size="22" fill="#a8324a">AFB</text><text x="50" y="80" text-anchor="middle" font-family="monospace" font-size="10" fill="#1a2841">★ ILLINOIS ★</text></svg>`, name:'Scott AFB'},
+    {id:'lib9', svg:`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="42" fill="none" stroke="#1a2841" stroke-width="4" stroke-dasharray="6 4"/><text x="50" y="58" text-anchor="middle" font-family="serif" font-weight="800" font-size="20" fill="#1a2841">EST 26</text></svg>`, name:'Est. Badge'},
+  ];
+
+  const libGrid = document.getElementById('libGrid');
+  LIBRARY.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'lib-item';
+    div.innerHTML = item.svg;
+    div.title = item.name + ' (click to add)';
+    div.onclick = () => addItemFromSvg(item.svg, item.name);
+    libGrid.appendChild(div);
+  });
+
+  /* ---------- UPLOAD HANDLING ---------- */
+  const uploadZone = document.getElementById('uploadZone');
+  const fileInput = document.getElementById('fileInput');
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadZone.classList.remove('dragover');
+    [...e.dataTransfer.files].forEach(handleFile);
+  });
+  fileInput.addEventListener('change', e => [...e.target.files].forEach(handleFile));
+
+  function handleFile(file){
+    if(!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = ev => addItemFromUrl(ev.target.result, file.name);
+    reader.readAsDataURL(file);
+  }
+
+  /* ---------- ITEM CREATION ---------- */
+  function addItemFromUrl(url, name){
+    const img = new Image();
+    img.onload = () => {
+      // default to 4" wide, scaled
+      const widthIn = 4;
+      const aspect = img.height / img.width;
+      addItem({ src: url, name, widthIn, heightIn: widthIn * aspect, isSvg:false });
+    };
+    img.src = url;
+  }
+
+  function addItemFromSvg(svgString, name){
+    // wrap to data url so it behaves like an image
+    const url = 'data:image/svg+xml;utf8,' + encodeURIComponent(svgString);
+    addItem({ src: url, name, widthIn: 3, heightIn: 3, isSvg:true });
+  }
+
+  function addItem({src, name, widthIn, heightIn, isSvg}){
+    // find a free spot — start at 0,0 and step down
+    let xIn = 0.25, yIn = 0.25;
+    if(items.length){
+      // place below lowest existing item
+      const maxY = Math.max(...items.map(i => i.yIn + i.heightIn));
+      yIn = Math.max(0.25, maxY + 0.25);
+    }
+    // ensure within width
+    if(xIn + widthIn > SHEET_WIDTH_IN) widthIn = SHEET_WIDTH_IN - 0.5;
+
+    const item = {
+      id: nextId++,
+      src, name, isSvg,
+      xIn, yIn, widthIn, heightIn,
+      filter: 'none'
+    };
+    items.push(item);
+    renderItems();
+    selectItem(item.id);
+    autoExtendIfNeeded();
+  }
+
+  /* ---------- RENDER ITEMS ---------- */
+  function renderItems(){
+    // remove existing item elements
+    sheet.querySelectorAll('.item').forEach(el => el.remove());
+    items.forEach(it => {
+      const el = document.createElement('div');
+      el.className = 'item' + (it.id===selectedId?' selected':'');
+      el.dataset.id = it.id;
+      el.style.left   = (it.xIn * PX_PER_IN) + 'px';
+      el.style.top    = (it.yIn * PX_PER_IN) + 'px';
+      el.style.width  = (it.widthIn * PX_PER_IN) + 'px';
+      el.style.height = (it.heightIn * PX_PER_IN) + 'px';
+      const filter = filterCss(it.filter);
+      el.innerHTML = `
+        <div class="badge">${it.widthIn.toFixed(2)}" × ${it.heightIn.toFixed(2)}"</div>
+        <img src="${it.src}" alt="" style="${filter}">
+        <div class="handle"></div>
+      `;
+      el.addEventListener('mousedown', e => onItemMouseDown(e, it.id));
+      el.querySelector('.handle').addEventListener('mousedown', e => onResizeMouseDown(e, it.id));
+      sheet.appendChild(el);
+    });
+    updateStats();
+    updatePrice();
+  }
+
+  function filterCss(filter){
+    switch(filter){
+      case 'invert':    return 'filter: invert(1);';
+      case 'hue-90':    return 'filter: hue-rotate(90deg) saturate(1.4);';
+      case 'hue-180':   return 'filter: hue-rotate(180deg) saturate(1.4);';
+      case 'hue-270':   return 'filter: hue-rotate(270deg) saturate(1.4);';
+      case 'grayscale': return 'filter: grayscale(1);';
+      case 'white':     return 'filter: brightness(0) invert(1);';
+      default:          return '';
+    }
+  }
+
+  /* ---------- SELECTION ---------- */
+  function selectItem(id){
+    selectedId = id;
+    renderItems();
+    const it = items.find(i => i.id===id);
+    if(!it){ itemEditor.style.display='none'; toggleToolbarBtns(false); return; }
+    itemEditor.style.display = 'block';
+    document.getElementById('itemEditorName').textContent = '· ' + (it.name || ('#' + id));
+    document.getElementById('editW').value = it.widthIn.toFixed(2);
+    document.getElementById('editH').value = it.heightIn.toFixed(2);
+    document.querySelectorAll('#colorRow .color-swatch').forEach(sw => {
+      sw.classList.toggle('active', sw.dataset.filter === it.filter);
+    });
+    toggleToolbarBtns(true);
+  }
+
+  function toggleToolbarBtns(on){
+    ['duplicateBtn','multiplyBtn','deleteBtn','centerBtn'].forEach(id => {
+      document.getElementById(id).disabled = !on;
+    });
+  }
+
+  /* ---------- DRAGGING ---------- */
+  function onItemMouseDown(e, id){
+    if(e.target.classList.contains('handle')) return;
+    e.preventDefault();
+    selectItem(id);
+    const it = items.find(i=>i.id===id);
+    const sheetRect = sheet.getBoundingClientRect();
+    dragInfo = {
+      id, startX: e.clientX, startY: e.clientY,
+      origXIn: it.xIn, origYIn: it.yIn
+    };
+  }
+  function onResizeMouseDown(e, id){
+    e.preventDefault(); e.stopPropagation();
+    const it = items.find(i=>i.id===id);
+    resizeInfo = {
+      id, startX: e.clientX, startY: e.clientY,
+      origW: it.widthIn, origH: it.heightIn,
+      aspect: it.heightIn / it.widthIn
+    };
+  }
+  document.addEventListener('mousemove', e => {
+    if(dragInfo){
+      const it = items.find(i=>i.id===dragInfo.id);
+      let dxIn = (e.clientX - dragInfo.startX) / PX_PER_IN;
+      let dyIn = (e.clientY - dragInfo.startY) / PX_PER_IN;
+      let nx = dragInfo.origXIn + dxIn;
+      let ny = dragInfo.origYIn + dyIn;
+      if(snapping){
+        nx = Math.round(nx / SNAP_IN) * SNAP_IN;
+        ny = Math.round(ny / SNAP_IN) * SNAP_IN;
+      }
+      // edge snapping to other items + sheet edges
+      if(snapping) ({nx, ny} = edgeSnap(it, nx, ny));
+      nx = Math.max(0, Math.min(nx, SHEET_WIDTH_IN - it.widthIn));
+      ny = Math.max(0, ny);
+      it.xIn = nx; it.yIn = ny;
+      autoExtendIfNeeded();
+      renderItems();
+      // keep selection visible
+      selectedId = dragInfo.id;
+      const el = sheet.querySelector(`.item[data-id="${dragInfo.id}"]`);
+      if(el) el.classList.add('selected');
+    }
+    if(resizeInfo){
+      const it = items.find(i=>i.id===resizeInfo.id);
+      let dxIn = (e.clientX - resizeInfo.startX) / PX_PER_IN;
+      let nw = Math.max(0.5, resizeInfo.origW + dxIn);
+      // maintain aspect
+      let nh = nw * resizeInfo.aspect;
+      if(snapping){ nw = Math.round(nw / SNAP_IN) * SNAP_IN; nh = nw * resizeInfo.aspect; }
+      if(it.xIn + nw > SHEET_WIDTH_IN) nw = SHEET_WIDTH_IN - it.xIn;
+      it.widthIn = nw; it.heightIn = nh;
+      // sync editor inputs
+      document.getElementById('editW').value = nw.toFixed(2);
+      document.getElementById('editH').value = nh.toFixed(2);
+      autoExtendIfNeeded();
+      renderItems();
+    }
+  });
+  document.addEventListener('mouseup', () => { dragInfo = null; resizeInfo = null; });
+
+  function edgeSnap(it, nx, ny){
+    const tol = 0.15; // inches
+    // sheet left edge
+    if(Math.abs(nx) < tol) nx = 0;
+    if(Math.abs((nx + it.widthIn) - SHEET_WIDTH_IN) < tol) nx = SHEET_WIDTH_IN - it.widthIn;
+    // align with other items
+    items.forEach(other => {
+      if(other.id === it.id) return;
+      // left edges
+      if(Math.abs(nx - other.xIn) < tol) nx = other.xIn;
+      // right edges
+      if(Math.abs((nx + it.widthIn) - (other.xIn + other.widthIn)) < tol) nx = other.xIn + other.widthIn - it.widthIn;
+      // top edges
+      if(Math.abs(ny - other.yIn) < tol) ny = other.yIn;
+      // bottom-of-other-to-top
+      if(Math.abs(ny - (other.yIn + other.heightIn)) < tol) ny = other.yIn + other.heightIn;
+    });
+    return {nx, ny};
+  }
+
+  /* ---------- AUTO EXTEND ---------- */
+  function autoExtendIfNeeded(){
+    if(!items.length) return;
+    const maxBottomIn = Math.max(...items.map(i => i.yIn + i.heightIn));
+    const neededFt = Math.ceil((maxBottomIn + 0.5) / 12);
+    // find smallest standard length >= needed
+    const fit = LENGTHS_FT.find(L => L >= neededFt);
+    if(fit && fit > sheetLenFt){
+      sheetLenFt = fit; autoExtended = true;
+      [...lengthPicker.children].forEach(b => b.classList.toggle('active', +b.dataset.ft === fit));
+      renderSheet();
+    }
+  }
+
+  /* ---------- TOOLBAR ACTIONS ---------- */
+  document.getElementById('duplicateBtn').onclick = () => {
+    const it = items.find(i=>i.id===selectedId);
+    if(!it) return;
+    const copy = {...it, id: nextId++, xIn: it.xIn + 0.5, yIn: it.yIn + it.heightIn + 0.25};
+    items.push(copy);
+    selectItem(copy.id);
+    autoExtendIfNeeded();
+  };
+  document.getElementById('deleteBtn').onclick = () => {
+    items = items.filter(i => i.id !== selectedId);
+    selectedId = null;
+    itemEditor.style.display = 'none';
+    toggleToolbarBtns(false);
+    renderItems();
+  };
+  document.getElementById('centerBtn').onclick = () => {
+    const it = items.find(i=>i.id===selectedId);
+    if(!it) return;
+    it.xIn = (SHEET_WIDTH_IN - it.widthIn) / 2;
+    if(snapping) it.xIn = Math.round(it.xIn / SNAP_IN) * SNAP_IN;
+    renderItems();
+    selectItem(it.id);
+  };
+  document.getElementById('snapToggle').onclick = (e) => {
+    snapping = !snapping;
+    e.target.textContent = snapping ? '⊞ Snap: ON' : '⊞ Snap: OFF';
+    e.target.dataset.on = snapping;
+  };
+  document.getElementById('multiplyBtn').onclick = () => {
+    const n = parseInt(document.getElementById('multCount').value) || 4;
+    multiply(n);
+  };
+  document.getElementById('multGoBtn').onclick = () => {
+    const n = parseInt(document.getElementById('multCount').value) || 4;
+    multiply(n);
+  };
+
+  function multiply(n){
+    const it = items.find(i=>i.id===selectedId);
+    if(!it) return;
+    // calculate columns that fit width
+    const cols = Math.max(1, Math.floor(SHEET_WIDTH_IN / (it.widthIn + 0.25)));
+    const startY = it.yIn + it.heightIn + 0.25;
+    let placed = 0;
+    let row = 0;
+    while(placed < n){
+      for(let c=0; c<cols && placed<n; c++){
+        const x = c * (it.widthIn + 0.25);
+        const y = startY + row * (it.heightIn + 0.25);
+        items.push({...it, id: nextId++, xIn: x, yIn: y});
+        placed++;
+      }
+      row++;
+    }
+    autoExtendIfNeeded();
+    renderItems();
+    selectItem(it.id);
+  }
+
+  /* ---------- ITEM EDITOR INPUTS ---------- */
+  document.getElementById('editW').addEventListener('input', e => {
+    const it = items.find(i=>i.id===selectedId); if(!it) return;
+    let w = parseFloat(e.target.value);
+    if(isNaN(w) || w < 0.5) return;
+    if(it.xIn + w > SHEET_WIDTH_IN) w = SHEET_WIDTH_IN - it.xIn;
+    const aspect = it.heightIn / it.widthIn;
+    it.widthIn = w;
+    it.heightIn = w * aspect;
+    document.getElementById('editH').value = it.heightIn.toFixed(2);
+    autoExtendIfNeeded();
+    renderItems();
+    // re-select without resetting editor inputs
+    sheet.querySelector(`.item[data-id="${it.id}"]`)?.classList.add('selected');
+  });
+  document.getElementById('editH').addEventListener('input', e => {
+    const it = items.find(i=>i.id===selectedId); if(!it) return;
+    let h = parseFloat(e.target.value);
+    if(isNaN(h) || h < 0.5) return;
+    const aspect = it.widthIn / it.heightIn;
+    it.heightIn = h;
+    it.widthIn = h * aspect;
+    if(it.xIn + it.widthIn > SHEET_WIDTH_IN){
+      it.widthIn = SHEET_WIDTH_IN - it.xIn;
+      it.heightIn = it.widthIn / aspect;
+    }
+    document.getElementById('editW').value = it.widthIn.toFixed(2);
+    autoExtendIfNeeded();
+    renderItems();
+    sheet.querySelector(`.item[data-id="${it.id}"]`)?.classList.add('selected');
+  });
+  document.querySelectorAll('#colorRow .color-swatch').forEach(sw => {
+    sw.onclick = () => {
+      const it = items.find(i=>i.id===selectedId); if(!it) return;
+      it.filter = sw.dataset.filter;
+      document.querySelectorAll('#colorRow .color-swatch').forEach(s => s.classList.remove('active'));
+      sw.classList.add('active');
+      renderItems();
+      sheet.querySelector(`.item[data-id="${it.id}"]`)?.classList.add('selected');
+    };
+  });
+
+  /* ---------- DROP IMAGES DIRECTLY ON SHEET ---------- */
+  scrollArea.addEventListener('dragover', e => e.preventDefault());
+  scrollArea.addEventListener('drop', e => {
+    e.preventDefault();
+    [...e.dataTransfer.files].forEach(handleFile);
+  });
+
+  /* ---------- DESELECT ON CANVAS CLICK ---------- */
+  scrollArea.addEventListener('mousedown', e => {
+    if(e.target === scrollArea || e.target === sheet){
+      selectedId = null;
+      itemEditor.style.display = 'none';
+      toggleToolbarBtns(false);
+      renderItems();
+    }
+  });
+
+  /* ---------- KEYBOARD ---------- */
+  document.addEventListener('keydown', e => {
+    if(!selectedId) return;
+    if(['INPUT','TEXTAREA'].includes(e.target.tagName)) return;
+    const it = items.find(i=>i.id===selectedId); if(!it) return;
+    const step = e.shiftKey ? 1 : SNAP_IN;
+    if(e.key === 'ArrowLeft')  { it.xIn = Math.max(0, it.xIn - step); renderItems(); selectItem(it.id); e.preventDefault();}
+    if(e.key === 'ArrowRight') { it.xIn = Math.min(SHEET_WIDTH_IN - it.widthIn, it.xIn + step); renderItems(); selectItem(it.id); e.preventDefault();}
+    if(e.key === 'ArrowUp')    { it.yIn = Math.max(0, it.yIn - step); renderItems(); selectItem(it.id); e.preventDefault();}
+    if(e.key === 'ArrowDown')  { it.yIn = it.yIn + step; autoExtendIfNeeded(); renderItems(); selectItem(it.id); e.preventDefault();}
+    if(e.key === 'Delete' || e.key === 'Backspace'){ document.getElementById('deleteBtn').click(); e.preventDefault();}
+    if(e.key === 'd' && (e.ctrlKey || e.metaKey)){ document.getElementById('duplicateBtn').click(); e.preventDefault();}
+  });
+
+  /* ---------- STATS & PRICING ---------- */
+  function updateStats(){
+    const sqIn = items.reduce((a,i) => a + i.widthIn * i.heightIn, 0);
+    document.getElementById('canvasStats').textContent =
+      `${items.length} item${items.length===1?'':'s'} · ${sqIn.toFixed(1)} sq in used`;
+  }
+
+  function currentTier(){
+    let chosen = TIERS[0];
+    TIERS.forEach(t => { if(sheetLenFt >= t.minFt) chosen = t; });
+    return chosen;
+  }
+
+  function nextTier(){
+    return TIERS.find(t => t.minFt > sheetLenFt);
+  }
+
+  function updatePrice(){
+    const tier = currentTier();
+    const total = sheetLenFt * tier.rate;
+    document.getElementById('psSize').textContent  = `22" × ${sheetLenFt}'`;
+    document.getElementById('psItems').textContent = items.length;
+    document.getElementById('psFeet').textContent  = sheetLenFt.toFixed(1) + ' ft';
+    document.getElementById('psRate').textContent  = '$' + tier.rate.toFixed(2) + '/ft';
+    document.getElementById('psTotal').textContent = '$' + total.toFixed(2);
+
+    // tier bar
+    const maxFt = 24;
+    const pct = Math.min(100, (sheetLenFt / maxFt) * 100);
+    document.getElementById('tierFill').style.width = pct + '%';
+    document.getElementById('tierLabel').textContent = tier.label;
+    const nx = nextTier();
+    document.getElementById('tierNext').textContent = nx
+      ? `→ ${nx.minFt}ft for $${nx.rate.toFixed(2)}/ft`
+      : '★ Best rate unlocked';
+  }
+
+  /* ---------- ORDER FORM ---------- */
+  document.getElementById('orderForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const f = e.target;
+    const summary = items.map(i => `• ${i.name || 'item'} — ${i.widthIn.toFixed(2)}" × ${i.heightIn.toFixed(2)}"`).join('\n');
+    const tier = currentTier();
+    const body = encodeURIComponent(
+`Hi Patriot Printing,
+
+I built a DTF gang sheet on your site. Details:
+
+Sheet: 22" × ${sheetLenFt}'
+Items: ${items.length}
+Estimated total: $${(sheetLenFt * tier.rate).toFixed(2)} (${tier.label} rate)
+
+Item list:
+${summary || '(no items added yet)'}
+
+Notes: ${f.elements[3].value || '—'}
+
+Name:  ${f.elements[0].value}
+Email: ${f.elements[1].value}
+Phone: ${f.elements[2].value || '—'}
+
+Please confirm pricing and turnaround. Thanks!`);
+    window.location.href = `mailto:patriotprintingllc@gmail.com?subject=Gang Sheet Quote Request&body=${body}`;
+  });
+
+  /* ---------- INIT ---------- */
+  setSheetLength(2);
+  updatePrice();
+  </script>
+</body>
+</html>
